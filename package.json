@@ -1,6 +1,6 @@
 {
   "name": "tessly",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Tessly: AI Token Tracker. Know every token you spend.",
   "main": "src/main.js",
   "author": "Arif",
