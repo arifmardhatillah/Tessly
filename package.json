@@ -38,7 +38,7 @@
         "provider": "github",
         "owner": "arifmardhatillah",
         "repo": "Tessly",
-        "releaseType": "release"
+        "releaseType": "draft"
       }
     ]
   },
