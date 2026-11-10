@@ -1,0 +1,158 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Tessly: AI Token Tracker</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="top">
+    <div class="brand">
+      <svg class="logo" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="12" width="4" height="9" rx="1.5"/><rect x="10" y="7" width="4" height="14" rx="1.5"/><rect x="17" y="3" width="4" height="18" rx="1.5"/></svg>
+      <div>
+        <h1>Tessly <span class="tagline">AI Token Tracker</span></h1>
+        <p id="source">Memuat data…</p>
+      </div>
+    </div>
+    <div class="top-actions">
+      <span id="syncState" class="pill" role="status"><span class="dot"></span>Membaca log…</span>
+      <button id="btnSync" class="btn ghost" title="Baca log dan kirim sekarang">
+        <svg class="ico" viewBox="0 0 20 20" aria-hidden="true"><path d="M16 10a6 6 0 0 1-10.6 3.8M4 10a6 6 0 0 1 10.6-3.8"/><path d="M15 2.5v4h-4M5 17.5v-4h4"/></svg>
+        Sinkron
+      </button>
+      <button id="btnSettings" class="btn ghost">
+        <svg class="ico" viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="2.6"/><path d="M10 1.8v2.4M10 15.8v2.4M1.8 10h2.4M15.8 10h2.4M4.2 4.2l1.7 1.7M14.1 14.1l1.7 1.7M4.2 15.8l1.7-1.7M14.1 5.9l1.7-1.7"/></svg>
+        Pengaturan
+      </button>
+    </div>
+  </header>
+
+  <div id="banner" class="banner" hidden></div>
+
+  <main>
+    <div class="filters">
+      <label class="field">
+        <span>Perangkat</span>
+        <select id="fMachine"><option value="all">Semua perangkat</option></select>
+      </label>
+      <label class="field">
+        <span>Jenis token</span>
+        <select id="fMetric">
+          <option value="total">Semua token</option>
+          <option value="io">Input + output</option>
+          <option value="i">Input</option>
+          <option value="o">Output</option>
+          <option value="cw">Cache tulis</option>
+          <option value="cr">Cache baca</option>
+        </select>
+      </label>
+      <div class="seg" role="tablist" aria-label="Periode grafik">
+        <span class="seg-ind" aria-hidden="true"></span>
+        <button role="tab" data-view="day" aria-selected="true">Harian</button>
+        <button role="tab" data-view="month" aria-selected="false">Bulanan</button>
+        <button role="tab" data-view="year" aria-selected="false">Tahunan</button>
+      </div>
+    </div>
+
+    <section class="kpis" aria-label="Ringkasan pemakaian">
+      <article class="kpi loading" id="kToday">
+        <div class="lbl"><span class="lbl-main">Hari ini <span class="live" title="Diperbarui langsung"><i></i></span></span><span class="when"></span></div>
+        <div class="big"><span class="num">0</span><span class="unit">token · <b class="msgs">0</b> balasan</span><span class="delta-layer" aria-hidden="true"></span></div>
+        <dl class="brk"></dl>
+      </article>
+      <article class="kpi loading" id="kMonth">
+        <div class="lbl"><span class="lbl-main">Bulan ini</span><span class="when"></span></div>
+        <div class="big"><span class="num">0</span><span class="unit">token · <b class="msgs">0</b> balasan</span></div>
+        <dl class="brk"></dl>
+      </article>
+      <article class="kpi loading" id="kYear">
+        <div class="lbl"><span class="lbl-main">Tahun ini</span><span class="when"></span></div>
+        <div class="big"><span class="num">0</span><span class="unit">token · <b class="msgs">0</b> balasan</span></div>
+        <dl class="brk"></dl>
+      </article>
+    </section>
+
+    <section class="panel chart-panel">
+      <div class="panel-head">
+        <div>
+          <h2 id="chartTitle">Token per hari</h2>
+          <p id="chartSub" class="sub"></p>
+        </div>
+        <div class="year-nav" id="yearNav" hidden>
+          <button class="icon-btn" id="yPrev" aria-label="Tahun sebelumnya">
+            <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M12.5 4.5 7 10l5.5 5.5"/></svg></button>
+          <span id="yLabel"></span>
+          <button class="icon-btn" id="yNext" aria-label="Tahun berikutnya">
+            <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M7.5 4.5 13 10l-5.5 5.5"/></svg></button>
+        </div>
+      </div>
+      <div class="chart" id="chart"></div>
+      <div class="tip" id="tip"></div>
+    </section>
+
+    <div class="two">
+      <section class="panel">
+        <div class="panel-head"><h2>Perangkat</h2><span class="sub" id="rangeLabel1"></span></div>
+        <div id="listMachines" class="list"></div>
+      </section>
+      <section class="panel">
+        <div class="panel-head"><h2>Model</h2><span class="sub" id="rangeLabel2"></span></div>
+        <div id="listModels" class="list"></div>
+      </section>
+    </div>
+
+    <p class="foot">Angka diambil dari log Claude Code di setiap komputer. Pemakaian claude.ai (web dan aplikasi chat) tidak tersimpan di komputer, jadi tidak ikut dihitung. Singkatan: rb = ribu, jt = juta, M = miliar.</p>
+  </main>
+
+  <aside class="upd" id="upd" hidden aria-live="polite" aria-labelledby="updTitle">
+    <div class="upd-head">
+      <span class="upd-ico" aria-hidden="true"><svg viewBox="0 0 20 20"><path d="M10 3v10M5.5 8.5 10 13l4.5-4.5M4 16.5h12"/></svg></span>
+      <div class="upd-txt">
+        <h3 id="updTitle"></h3>
+        <p id="updText"></p>
+      </div>
+      <button class="upd-x" id="updClose" aria-label="Tutup">
+        <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M5 5l10 10M15 5 5 15"/></svg></button>
+    </div>
+    <div class="upd-notes" id="updNotes" hidden></div>
+    <div class="upd-bar" id="updBar" hidden><i></i></div>
+    <div class="upd-actions">
+      <button class="btn" id="updLater">Nanti</button>
+      <button class="btn primary" id="updGo">Unduh dan pasang</button>
+    </div>
+  </aside>
+
+  <dialog id="dlg">
+    <form method="dialog" id="frm">
+      <h2>Pengaturan</h2>
+      <p class="sub" id="devInfo"></p>
+      <label class="field block"><span>URL proyek Supabase</span>
+        <input name="supabaseUrl" placeholder="https://xxxx.supabase.co" autocomplete="off" spellcheck="false"></label>
+      <label class="field block"><span>Kunci API (anon atau publishable)</span>
+        <input name="supabaseKey" type="password" autocomplete="off" spellcheck="false"></label>
+      <label class="field block"><span>Kunci tim</span>
+        <input name="teamKey" type="password" autocomplete="off" spellcheck="false">
+        <small>Kunci yang sama di semua komputer, dibuat saat menjalankan schema.sql.</small></label>
+      <label class="field block"><span>Nama perangkat (opsional)</span>
+        <input name="displayName" autocomplete="off"></label>
+      <label class="check"><input type="checkbox" name="autostart"> Jalankan otomatis saat Windows menyala</label>
+      <div class="ver-row">
+        <span>Versi aplikasi <b id="verNow"></b></span>
+        <span id="verMsg" class="sub" role="status"></span>
+        <button type="button" class="btn" id="btnCheckUpd">Cek update</button>
+      </div>
+      <p id="testMsg" class="msg" role="status"></p>
+      <div class="dlg-actions">
+        <button type="button" class="btn ghost" id="btnTest">Uji koneksi</button>
+        <span class="grow"></span>
+        <button type="button" class="btn ghost" id="btnCancel">Batal</button>
+        <button type="submit" class="btn primary" id="btnSave">Simpan</button>
+      </div>
+    </form>
+  </dialog>
+
+  <script src="app.js"></script>
+</body>
+</html>
