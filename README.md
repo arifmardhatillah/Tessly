@@ -51,9 +51,9 @@ Nama lama aplikasi ini adalah TokenMeter. Kalau TokenMeter masih terpasang, unin
 3. Buat token GitHub (fine-grained) untuk repo Tessly dengan izin *Contents: Read and write*.
 4. Di PowerShell, dari folder proyek:
    ```powershell
-   $env:GH_TOKEN = "github_pat_..."
-   .\release.ps1
+   powershell -ExecutionPolicy Bypass -File .\release.ps1
    ```
+   Skrip akan meminta token. Tempel dengan klik kanan, lalu tekan Enter. Token tidak terlihat saat ditempel, itu normal.
 
 Repo harus **publik** agar aplikasi bisa membaca rilis tanpa token. Kode tidak berisi rahasia: kunci Supabase dan kunci tim hanya ada di Pengaturan setiap komputer.
 
