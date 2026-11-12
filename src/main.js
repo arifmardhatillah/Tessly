@@ -308,7 +308,7 @@ function showWindow() {
 function updateTrayTooltip() {
   if (!tray) return;
   const today = isoDay(Date.now());
-  const t = scanner.aggregate().filter((r) => r.d === today).reduce((a, r) => a + r.i + r.o + r.cw + r.cr, 0);
+  const t = scanner.aggregate().filter((r) => r.d === today).reduce((a, r) => a + r.i + r.o, 0); // input + output, sama dengan angka utama di dashboard
   const fmt = new Intl.NumberFormat('id-ID', { notation: 'compact', maximumFractionDigits: 1 }).format(t);
   const st = !cloudReady() ? 'mode lokal' : sync.lastError ? 'gagal sinkron' : 'tersinkron';
   tray.setToolTip(`Tessly: ${fmt} token hari ini (${st})`);

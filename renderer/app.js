@@ -13,15 +13,20 @@ const dayLong = new Intl.DateTimeFormat('id-ID', { weekday: 'long', day: 'numeri
 const timeFmt = new Intl.DateTimeFormat('id-ID', { hour: '2-digit', minute: '2-digit' });
 
 const METRICS = {
-  total: { label: 'Semua token', get: (r) => r.i + r.o + r.cw + r.cr },
-  io: { label: 'Input + output', get: (r) => r.i + r.o },
-  i: { label: 'Input', get: (r) => r.i },
-  o: { label: 'Output', get: (r) => r.o },
-  cw: { label: 'Cache tulis', get: (r) => r.cw },
-  cr: { label: 'Cache baca', get: (r) => r.cr },
+  io: { label: 'Input + output', unit: 'token input + output', parts: ['i', 'o'], get: (r) => r.i + r.o },
+  total: { label: 'Semua token, termasuk cache', unit: 'token, termasuk cache', parts: ['i', 'o', 'cw', 'cr'], get: (r) => r.i + r.o + r.cw + r.cr },
+  i: { label: 'Input', unit: 'token input', parts: ['i'], get: (r) => r.i },
+  o: { label: 'Output', unit: 'token output', parts: ['o'], get: (r) => r.o },
+  cw: { label: 'Cache tulis', unit: 'token cache tulis', parts: ['cw'], get: (r) => r.cw },
+  cr: { label: 'Cache baca', unit: 'token cache baca', parts: ['cr'], get: (r) => r.cr },
 };
 
-const state = { view: 'day', metric: 'total', machine: 'all', year: new Date().getFullYear(), data: null };
+// Pilihan jenis token diingat per komputer. Bawaan: input + output (token baru, tanpa cache).
+function savedMetric() {
+  try { const m = localStorage.getItem('tessly.metric'); return METRICS[m] ? m : 'io'; } catch { return 'io'; }
+}
+
+const state = { view: 'day', metric: savedMetric(), machine: 'all', year: new Date().getFullYear(), data: null };
 const $ = (id) => document.getElementById(id);
 const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const pad = (n) => String(n).padStart(2, '0');
@@ -47,14 +52,27 @@ function tween(el, to, fmt, ms = 900) {
   el._v = to;
   el.title = `${fmtFull.format(to)}`;
   cancelAnimationFrame(el._raf);
-  if (reduceMotion || from === to) { el.textContent = fmt(to); return; }
+  if (reduceMotion || from === to) { paint(el, fmt(to)); return; }
   const t0 = performance.now();
   const step = (now) => {
     const k = Math.min(1, (now - t0) / ms);
-    el.textContent = fmt(from + (to - from) * easeOut(k));
+    paint(el, fmt(from + (to - from) * easeOut(k)));
     if (k < 1) el._raf = requestAnimationFrame(step);
   };
   el._raf = requestAnimationFrame(step);
+}
+
+// Angka besar di kartu: satuan (rb, jt, M) ditulis lebih kecil dari angkanya.
+function paint(el, text) {
+  if (!el.classList.contains('num')) { el.textContent = text; return; }
+  if (!el._n) {
+    el.textContent = '';
+    el._n = el.appendChild(document.createTextNode(''));
+    el._s = el.appendChild(document.createElement('small'));
+  }
+  const m = /^([\d.,]+)\s*(.*)$/.exec(text) || [0, text, ''];
+  el._n.nodeValue = m[1];
+  el._s.textContent = m[2];
 }
 
 function bump(card) {
@@ -70,7 +88,7 @@ function showDelta(n) {
   const layer = document.querySelector('#kToday .delta-layer');
   const b = document.createElement('span');
   b.className = 'delta';
-  b.textContent = `+${fmtC.format(n)} token`;
+  b.textContent = `+${fmtC.format(n)}`;
   layer.append(b);
   b.addEventListener('animationend', () => b.remove());
 }
@@ -151,9 +169,21 @@ const fmtInt = (v) => fmtFull.format(Math.round(v));
 function fillCard(id, when, s, isToday) {
   const card = $(id);
   const brk = card.querySelector('.brk');
+  const mix = card.querySelector('.mix');
   if (!brk.children.length) {
-    brk.innerHTML = BRK.map(([k]) => `<div><dt>${k}</dt><dd>0</dd></div>`).join('');
+    brk.innerHTML = BRK.map(([label, k]) => `<div data-k="${k}"><dt><i></i>${label}</dt><dd>0</dd></div>`).join('');
+    mix.innerHTML = BRK.map(([, k]) => `<i data-k="${k}"></i>`).join('');
   }
+  // Bilah komposisi: porsi tiap jenis token. Yang tidak ikut dihitung di angka besar diredupkan.
+  const counted = METRICS[state.metric].parts;
+  mix.querySelectorAll('i').forEach((seg) => {
+    const v = s[seg.dataset.k];
+    seg.style.flexGrow = v;
+    seg.style.minWidth = v > 0 ? '3px' : '0';
+    seg.classList.toggle('off', !counted.includes(seg.dataset.k));
+  });
+  brk.querySelectorAll('div').forEach((row) => row.classList.toggle('off', !counted.includes(row.dataset.k)));
+  card.querySelector('.what').textContent = METRICS[state.metric].unit;
   card.querySelector('.when').textContent = when;
   const num = card.querySelector('.num');
   const v = metricOf(s);
@@ -481,7 +511,12 @@ document.querySelectorAll('.seg button').forEach((b) => b.addEventListener('clic
   render('grow');
 }));
 $('fMachine').addEventListener('change', (e) => { state.machine = e.target.value; render('update'); });
-$('fMetric').addEventListener('change', (e) => { state.metric = e.target.value; render('update'); });
+$('fMetric').value = state.metric;
+$('fMetric').addEventListener('change', (e) => {
+  state.metric = e.target.value;
+  try { localStorage.setItem('tessly.metric', state.metric); } catch { /* tanpa penyimpanan: pilihan berlaku sampai aplikasi ditutup */ }
+  render('update');
+});
 $('yPrev').addEventListener('click', () => { state.year--; render('grow'); });
 $('yNext').addEventListener('click', () => { state.year++; render('grow'); });
 
