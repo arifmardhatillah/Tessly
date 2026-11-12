@@ -260,7 +260,7 @@ function createWindow(show) {
     title: 'Tessly: AI Token Tracker',
     icon: path.join(__dirname, '..', 'build', 'icon.png'),
     autoHideMenuBar: true,
-    backgroundColor: '#f6f6f4',
+    backgroundColor: require('electron').nativeTheme.shouldUseDarkColors ? '#0a0a0a' : '#f5f4f1',
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
       contextIsolation: true,
@@ -273,7 +273,11 @@ function createWindow(show) {
   // Khusus pengembangan: TM_SHOT=file.png -> simpan tangkapan layar lalu keluar.
   if (!app.isPackaged && process.env.TM_SHOT) {
     win.webContents.once('did-finish-load', () => setTimeout(async () => {
-      if (process.env.TM_THEME) await win.webContents.executeJavaScript(`document.documentElement.dataset.theme='${process.env.TM_THEME}'`);
+      // TM_JS: skrip yang dijalankan di halaman sebelum dipotret, misal untuk mengklik tab atau membuka dialog
+      if (process.env.TM_JS) {
+        await win.webContents.executeJavaScript(process.env.TM_JS, true);
+        await new Promise((r) => setTimeout(r, 1500));
+      }
       if (!process.env.TM_DELAY) {
         win.setContentSize(1180, 1250);
         await new Promise((r) => setTimeout(r, 800));

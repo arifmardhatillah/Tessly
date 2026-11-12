@@ -2,27 +2,37 @@
 <html lang="id">
 <head>
   <meta charset="utf-8">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; font-src 'self'; img-src 'self' data:">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
   <title>Tessly: AI Token Tracker</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <header class="top">
+  <header class="bar">
     <div class="brand">
-      <svg class="logo" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="12" width="4" height="9" rx="1.5"/><rect x="10" y="7" width="4" height="14" rx="1.5"/><rect x="17" y="3" width="4" height="18" rx="1.5"/></svg>
-      <div>
-        <h1>Tessly <span class="tagline">AI Token Tracker</span></h1>
-        <p id="source">Memuat data…</p>
-      </div>
+      <p class="wordmark">tess<b>ly</b></p>
+      <p id="source" class="bar-sub">Memuat data…</p>
     </div>
-    <div class="top-actions">
+    <div class="bar-actions">
       <span id="syncState" class="pill" role="status"><span class="dot"></span>Membaca log…</span>
-      <button id="btnSync" class="btn ghost" title="Baca log dan kirim sekarang">
+      <button id="btnConnect" class="btn primary" data-open-settings hidden>Hubungkan Supabase</button>
+      <select id="fMetric" aria-label="Jenis token yang dihitung">
+        <option value="io">Input + output</option>
+        <option value="total">Semua, termasuk cache</option>
+        <option value="i">Input saja</option>
+        <option value="o">Output saja</option>
+        <option value="cw">Cache tulis</option>
+        <option value="cr">Cache baca</option>
+      </select>
+      <button id="btnSync" class="btn" title="Baca log dan kirim sekarang">
         <svg class="ico" viewBox="0 0 20 20" aria-hidden="true"><path d="M16 10a6 6 0 0 1-10.6 3.8M4 10a6 6 0 0 1 10.6-3.8"/><path d="M15 2.5v4h-4M5 17.5v-4h4"/></svg>
         Sinkron
       </button>
-      <button id="btnSettings" class="btn ghost">
+      <button id="btnTheme" class="btn icon" aria-label="Ganti mode terang atau gelap" title="Ganti mode terang atau gelap">
+        <svg class="ico" viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="7"/><path d="M10 3a7 7 0 0 0 0 14z" fill="currentColor" stroke="none"/></svg>
+      </button>
+      <button id="btnSettings" class="btn">
         <svg class="ico" viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="2.6"/><path d="M10 1.8v2.4M10 15.8v2.4M1.8 10h2.4M15.8 10h2.4M4.2 4.2l1.7 1.7M14.1 14.1l1.7 1.7M4.2 15.8l1.7-1.7M14.1 5.9l1.7-1.7"/></svg>
         Pengaturan
       </button>
@@ -32,78 +42,71 @@
   <div id="banner" class="banner" hidden></div>
 
   <main>
-    <div class="filters">
-      <select id="fMachine" aria-label="Perangkat"><option value="all">Semua perangkat</option></select>
-      <select id="fMetric" aria-label="Jenis token yang dihitung">
-        <option value="io">Input + output</option>
-        <option value="total">Semua, termasuk cache</option>
-        <option value="i">Input saja</option>
-        <option value="o">Output saja</option>
-        <option value="cw">Cache tulis</option>
-        <option value="cr">Cache baca</option>
-      </select>
-      <div class="seg" role="tablist" aria-label="Periode grafik">
-        <span class="seg-ind" aria-hidden="true"></span>
-        <button role="tab" data-view="day" aria-selected="true">Harian</button>
-        <button role="tab" data-view="month" aria-selected="false">Bulanan</button>
-        <button role="tab" data-view="year" aria-selected="false">Tahunan</button>
-      </div>
-    </div>
+    <h1 class="vh" id="pageTitle">Pemakaian token</h1>
 
     <section class="kpis" aria-label="Ringkasan pemakaian">
       <article class="kpi loading" id="kToday">
-        <div class="lbl"><span class="lbl-main">Hari ini <span class="live" title="Diperbarui langsung"><i></i></span></span><span class="when"></span></div>
-        <div class="big"><span class="num">0</span><span class="unit"><span class="what">token</span> · <b class="msgs">0</b> balasan</span><span class="delta-layer" aria-hidden="true"></span></div>
-        <div class="mix" aria-hidden="true"></div>
+        <h2 class="lbl">Hari ini</h2>
+        <div class="big"><span class="num">0</span><span class="unit"><b class="msgs">0</b> balasan</span><span class="delta-layer" aria-hidden="true"></span></div>
         <dl class="brk"></dl>
       </article>
       <article class="kpi loading" id="kMonth">
-        <div class="lbl"><span class="lbl-main">Bulan ini</span><span class="when"></span></div>
-        <div class="big"><span class="num">0</span><span class="unit"><span class="what">token</span> · <b class="msgs">0</b> balasan</span></div>
-        <div class="mix" aria-hidden="true"></div>
+        <h2 class="lbl">Bulan ini</h2>
+        <div class="big"><span class="num">0</span><span class="unit"><b class="msgs">0</b> balasan</span></div>
         <dl class="brk"></dl>
       </article>
       <article class="kpi loading" id="kYear">
-        <div class="lbl"><span class="lbl-main">Tahun ini</span><span class="when"></span></div>
-        <div class="big"><span class="num">0</span><span class="unit"><span class="what">token</span> · <b class="msgs">0</b> balasan</span></div>
-        <div class="mix" aria-hidden="true"></div>
+        <h2 class="lbl">Tahun ini</h2>
+        <div class="big"><span class="num">0</span><span class="unit"><b class="msgs">0</b> balasan</span></div>
         <dl class="brk"></dl>
       </article>
     </section>
 
-    <section class="panel chart-panel">
-      <div class="panel-head">
-        <div>
-          <h2 id="chartTitle">Token per hari</h2>
-          <p id="chartSub" class="sub"></p>
+    <div class="row2">
+      <section class="card chart-sec" aria-labelledby="chartTitle">
+        <div class="panel-head">
+          <div>
+            <h2 id="chartTitle">Token per hari</h2>
+            <p id="chartSub" class="sub"></p>
+          </div>
+          <div class="chart-ctl">
+            <div class="year-nav" id="yearNav" hidden>
+            <button class="icon-btn" id="yPrev" aria-label="Tahun sebelumnya">
+              <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M12.5 4.5 7 10l5.5 5.5"/></svg></button>
+            <span id="yLabel"></span>
+            <button class="icon-btn" id="yNext" aria-label="Tahun berikutnya">
+              <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M7.5 4.5 13 10l-5.5 5.5"/></svg></button>
+          </div>
+            <div class="seg" role="tablist" aria-label="Periode grafik">
+              <span class="seg-ind" aria-hidden="true"></span>
+              <button role="tab" data-view="day" aria-selected="true">Harian</button>
+              <button role="tab" data-view="month" aria-selected="false">Bulanan</button>
+              <button role="tab" data-view="year" aria-selected="false">Tahunan</button>
+            </div>
+          </div>
         </div>
-        <div class="year-nav" id="yearNav" hidden>
-          <button class="icon-btn" id="yPrev" aria-label="Tahun sebelumnya">
-            <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M12.5 4.5 7 10l5.5 5.5"/></svg></button>
-          <span id="yLabel"></span>
-          <button class="icon-btn" id="yNext" aria-label="Tahun berikutnya">
-            <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M7.5 4.5 13 10l-5.5 5.5"/></svg></button>
-        </div>
+        <dl class="stats" id="chartStats"></dl>
+        <div class="chart" id="chart"></div>
+        <div class="heat" id="heat" role="list" aria-label="Kalender warna pemakaian"></div>
+        <div class="tip" id="tip"></div>
+      </section>
+
+      <div class="stack">
+        <section class="card" aria-labelledby="hModel">
+          <div class="sec-head"><h2 id="hModel">Model</h2><span class="sub" id="rangeLabel2"></span></div>
+          <div id="listModels" class="rows"></div>
+        </section>
+        <section class="card" aria-labelledby="hDev">
+          <div class="sec-head"><h2 id="hDev">Perangkat</h2><span class="sub" id="rangeLabel1"></span></div>
+          <div id="listMachines" class="rows"></div>
+        </section>
       </div>
-      <div class="chart" id="chart"></div>
-      <div class="tip" id="tip"></div>
-    </section>
-
-    <div class="two">
-      <section class="panel">
-        <div class="panel-head"><h2>Perangkat</h2><span class="sub" id="rangeLabel1"></span></div>
-        <div id="listMachines" class="list"></div>
-      </section>
-      <section class="panel">
-        <div class="panel-head"><h2>Model</h2><span class="sub" id="rangeLabel2"></span></div>
-        <div id="listModels" class="list"></div>
-      </section>
     </div>
 
-    <div class="foot">
-      <p><b>Input + output</b> adalah token baru: yang Anda kirim dan yang ditulis model. <b>Cache</b> adalah isi percakapan yang dikirim ulang pada setiap balasan, karena itu jumlahnya jauh lebih besar.</p>
-      <p>Angka diambil dari log Claude Code di setiap komputer. Pemakaian claude.ai (web dan aplikasi chat) tidak tersimpan di komputer, jadi tidak ikut dihitung. Singkatan: rb = ribu, jt = juta, M = miliar.</p>
-    </div>
+    <footer class="foot">
+      <p>Input + output = token baru. Cache = isi percakapan yang dikirim ulang tiap balasan. Pemakaian claude.ai tidak ikut dihitung. rb = ribu, jt = juta, M = miliar.</p>
+      <p id="appVer"></p>
+    </footer>
   </main>
 
   <aside class="upd" id="upd" hidden aria-live="polite" aria-labelledby="updTitle">

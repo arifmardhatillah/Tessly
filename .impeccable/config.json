@@ -1,0 +1,23 @@
+{
+  "detector": {
+    "ignoreRules": [],
+    "ignoreFiles": [],
+    "ignoreValues": [
+      {
+        "rule": "overused-font",
+        "value": "space grotesk",
+        "createdAt": "2026-11-12T06:55:25.175Z",
+        "reason": "user confirmed: memilih rancangan 'Senja' dari galeri 12 rancangan, yang memakai Space Grotesk"
+      },
+      {
+        "rule": "side-tab",
+        "value": "*",
+        "files": [
+          "renderer/style.css"
+        ],
+        "createdAt": "2026-11-12T06:55:25.803Z",
+        "reason": "user confirmed: meminta kartu Hari ini seperti 'Biru korporat' dan mengirim tangkapan layarnya, yang punya garis aksen di atas kartu"
+      }
+    ]
+  }
+}
