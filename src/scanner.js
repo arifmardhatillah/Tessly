@@ -45,11 +45,17 @@ class Scanner {
     this.msgs = new Map(); // id balasan -> { d, mo, i, o, cw, cr }
   }
 
+  // Baca semua file log (saat mulai dan sebagai cadangan berkala).
   async scan() {
     const list = [];
     for (const r of this.roots) await walk(r, list);
+    return this.scanFiles(list);
+  }
+
+  // Baca hanya file tertentu, misalnya file yang baru saja ditulis Claude Code.
+  async scanFiles(files) {
     let changed = false;
-    for (const f of list) {
+    for (const f of files) {
       if (await this.readFile(f)) changed = true;
     }
     return changed;

@@ -6,8 +6,6 @@ try {
   if (t === 'light' || t === 'dark') document.documentElement.dataset.theme = t;
 } catch { /* tanpa penyimpanan: ikut Windows */ }
 
-const REFRESH_MS = 15000;
-const ONLINE_MS = 3 * 60 * 1000;
 const SVG_NS = 'http://www.w3.org/2000/svg';
 const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
@@ -16,7 +14,6 @@ const fmtC = new Intl.NumberFormat('id-ID', { notation: 'compact', maximumSignif
 const monthShort = new Intl.DateTimeFormat('id-ID', { month: 'short' });
 const monthLong = new Intl.DateTimeFormat('id-ID', { month: 'long', year: 'numeric' });
 const dayLong = new Intl.DateTimeFormat('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
-const timeFmt = new Intl.DateTimeFormat('id-ID', { hour: '2-digit', minute: '2-digit' });
 
 const METRICS = {
   io: { label: 'Input + output', unit: 'token input + output', parts: ['i', 'o'], get: (r) => r.i + r.o },
@@ -32,7 +29,7 @@ function savedMetric() {
   try { const m = localStorage.getItem('tessly.metric'); return METRICS[m] ? m : 'io'; } catch { return 'io'; }
 }
 
-const state = { view: 'day', metric: savedMetric(), machine: 'all', year: new Date().getFullYear(), data: null };
+const state = { view: 'day', metric: savedMetric(), year: new Date().getFullYear(), data: null };
 const $ = (id) => document.getElementById(id);
 const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const pad = (n) => String(n).padStart(2, '0');
@@ -44,10 +41,7 @@ function addTo(a, r) { a.i += +r.i || 0; a.o += +r.o || 0; a.cw += +r.cw || 0; a
 const sumRows = (rows) => rows.reduce(addTo, emptySum());
 function groupInto(map, key, r) { let a = map.get(key); if (!a) map.set(key, (a = emptySum())); return addTo(a, r); }
 
-function rows(kind) {
-  const all = (state.data && state.data[kind]) || [];
-  return state.machine === 'all' ? all : all.filter((r) => r.m === state.machine);
-}
+const rows = (kind) => (state.data && state.data[kind]) || [];
 
 // ---------- angka yang menghitung naik ----------
 const easeOut = (t) => 1 - Math.pow(1 - t, 3);
@@ -100,67 +94,24 @@ function showDelta(n) {
 }
 
 // ---------- data ----------
-async function refresh() {
-  try {
-    state.data = await window.api.getData();
-  } catch (e) {
-    console.error(e);
-    return;
-  }
+// Proses utama mengirim data baru begitu Claude Code menulis log, jadi tidak perlu bertanya berulang kali.
+// Saat jendela tersembunyi, data disimpan dulu dan baru digambar ketika jendela terlihat lagi.
+let stale = false;
+function receive(d) {
+  if (!d || !d.ready) return; // pembacaan log pertama belum selesai: kerangka kartu tetap tampil
+  state.data = d;
+  if (document.hidden) { stale = true; return; }
   render('update');
 }
 
+let renderedDay = dayKey(new Date());
 function render(mode) {
-  const d = state.data;
-  if (!d) return;
-  renderHeader(d);
-  renderMachineFilter(d);
+  if (!state.data) return;
+  stale = false;
+  renderedDay = dayKey(new Date());
   renderKpis();
   renderChart(mode);
   renderLists();
-}
-
-let lastSyncOk = null;
-function renderHeader(d) {
-  const s = d.sync || {};
-  const picked = state.machine !== 'all' && d.machines.find((m) => m.id === state.machine);
-  $('pageTitle').textContent = picked ? `Pemakaian token ${picked.name}` : 'Pemakaian token';
-  $('source').textContent = picked ? `Hanya perangkat ini, pengguna ${picked.user}`
-    : d.source === 'cloud' ? `Gabungan ${d.machines.length} perangkat dari Supabase`
-      : 'Hanya komputer ini';
-
-  let dot = '', txt = '';
-  if (!s.configured) txt = 'Belum terhubung ke Supabase';
-  else if (d.cloudError) { dot = 'err'; txt = 'Gagal memuat data pusat'; }
-  else if (s.lastError) { dot = 'err'; txt = 'Gagal mengirim data'; }
-  else if (s.lastOk) { dot = 'ok'; txt = `Tersinkron pukul ${timeFmt.format(new Date(s.lastOk))}`; }
-  else txt = 'Menyinkronkan…';
-  const pill = $('syncState');
-  pill.hidden = !s.configured;
-  $('btnConnect').hidden = Boolean(s.configured);
-  pill.innerHTML = `<span class="dot ${dot}"></span>${esc(txt)}`;
-  if (s.lastOk && lastSyncOk && s.lastOk !== lastSyncOk) {
-    pill.classList.add('flash');
-    setTimeout(() => pill.classList.remove('flash'), 900);
-  }
-  lastSyncOk = s.lastOk;
-
-  const b = $('banner');
-  let html = '';
-  if (s.configured && (d.cloudError || s.lastError)) {
-    html = `<span>${esc(d.cloudError ? 'Data pusat tidak bisa dimuat, sementara menampilkan data lokal. ' + d.cloudError : 'Pengiriman ke Supabase gagal. ' + s.lastError)}</span><button class="btn" data-open-settings>Periksa pengaturan</button>`;
-  }
-  if (b.dataset.html !== html) {
-    b.innerHTML = html;
-    b.dataset.html = html;
-    b.hidden = !html;
-  }
-}
-
-function machineLabel(m) { return m.user ? `${m.name} (${m.user})` : m.name; }
-
-function renderMachineFilter(d) {
-  if (state.machine !== 'all' && !d.machines.some((m) => m.id === state.machine)) state.machine = 'all';
 }
 
 const BRK = [['Input', 'i'], ['Output', 'o'], ['Cache tulis', 'cw'], ['Cache baca', 'cr']];
@@ -194,10 +145,10 @@ function renderKpis() {
   const y = sumRows(rows('monthly').filter((r) => r.d.startsWith(year)));
 
   const tv = metricOf(t);
-  if (lastToday && lastToday.metric === state.metric && lastToday.machine === state.machine && lastToday.day === today) {
+  if (lastToday && lastToday.metric === state.metric && lastToday.day === today) {
     showDelta(tv - lastToday.v);
   }
-  lastToday = { v: tv, metric: state.metric, machine: state.machine, day: today };
+  lastToday = { v: tv, metric: state.metric, day: today };
 
   fillCard('kToday', dayLong.format(now), t, true);
   fillCard('kMonth', monthLong.format(now), m, false);
@@ -292,8 +243,7 @@ function renderChart(mode = 'update') {
   $('chartTitle').textContent = title;
   $('chartSub').textContent = `${METRICS[state.metric].label}, ${range.toLowerCase()}`
     + (win ? `. Garis = rata-rata ${win} ${unit} terakhir` : '');
-  $('rangeLabel1').textContent = range;
-  $('rangeLabel2').textContent = range;
+  $('rangeLabel').textContent = range;
   $('yearNav').hidden = state.view !== 'month';
   const yl = $('yLabel');
   if (yl.textContent !== String(state.year)) {
@@ -424,6 +374,7 @@ function renderChart(mode = 'update') {
   });
   svg.querySelector('.empty').textContent = vals.every((v) => v === 0) ? 'Belum ada pemakaian pada periode ini' : '';
   renderHeat(out, vals, nowIdx);
+  if (tipIdx >= 0 && lastBuckets[tipIdx]) fillTip(tipIdx, lastBuckets[tipIdx].s); // angka di tooltip ikut diperbarui
 }
 
 // Kalender warna di bawah grafik: hari (Harian) atau bulan (Bulanan), makin pekat makin banyak token.
@@ -461,11 +412,24 @@ function renderHeat(out, vals, nowIdx) {
   });
 }
 
+let tipIdx = -1;
 function showTip(i, evt) {
   const b = lastBuckets[i];
   if (!b) return;
   const tip = $('tip');
-  const s = b.s;
+  if (i !== tipIdx) fillTip(i, b.s);
+  const card = tip.parentElement.getBoundingClientRect();
+  let x = evt.clientX - card.left + 16;
+  const y = Math.max(8, evt.clientY - card.top - 20);
+  if (x + tip.offsetWidth > card.width - 8) x = evt.clientX - card.left - tip.offsetWidth - 16;
+  tip.style.left = `${Math.max(8, x)}px`;
+  tip.style.top = `${y}px`;
+}
+
+function fillTip(i, s) {
+  tipIdx = i;
+  const b = lastBuckets[i];
+  const tip = $('tip');
   tip.innerHTML = `<b>${esc(b.title)}</b>
     <div class="tr main"><span>${esc(METRICS[state.metric].label)}</span><span>${fmtFull.format(metricOf(s))}</span></div>
     <div class="tr"><span>Input</span><span>${fmtFull.format(s.i)}</span></div>
@@ -473,12 +437,6 @@ function showTip(i, evt) {
     <div class="tr"><span>Cache tulis</span><span>${fmtFull.format(s.cw)}</span></div>
     <div class="tr"><span>Cache baca</span><span>${fmtFull.format(s.cr)}</span></div>
     <div class="tr"><span>Balasan</span><span>${fmtFull.format(s.n)}</span></div>`;
-  const card = tip.parentElement.getBoundingClientRect();
-  let x = evt.clientX - card.left + 16;
-  const y = Math.max(8, evt.clientY - card.top - 20);
-  if (x + tip.offsetWidth > card.width - 8) x = evt.clientX - card.left - tip.offsetWidth - 16;
-  tip.style.left = `${Math.max(8, x)}px`;
-  tip.style.top = `${y}px`;
   tip.classList.add('show');
   const chart = $('chart');
   chart.classList.add('hovering');
@@ -489,6 +447,8 @@ function showTip(i, evt) {
 }
 
 function hideTip() {
+  if (tipIdx < 0) return;
+  tipIdx = -1;
   $('tip').classList.remove('show');
   const chart = $('chart');
   chart.classList.remove('hovering');
@@ -496,23 +456,12 @@ function hideTip() {
   $('heat').querySelectorAll('.hc.on').forEach((n) => n.classList.remove('on'));
 }
 
-// ---------- daftar perangkat & model ----------
+// ---------- daftar model ----------
 // Bilah porsi baris: lebarnya = porsi baris ini (0-100).
 function trackHtml(w) {
   return `<span class="pb"><i data-w="${w}"></i></span>`;
 }
 
-function relTime(iso) {
-  const ms = Date.now() - new Date(iso).getTime();
-  if (ms < ONLINE_MS) return null;
-  const m = Math.round(ms / 60000);
-  if (m < 60) return `${m} menit lalu`;
-  const h = Math.round(m / 60);
-  if (h < 48) return `${h} jam lalu`;
-  return `${Math.round(h / 24)} hari lalu`;
-}
-
-// Isi ulang daftar hanya bila berubah, lalu animasikan lebar bar porsi.
 // Isi ulang daftar hanya bila berubah, lalu animasikan lebar bilah dari nilai sebelumnya.
 function fillList(el, html) {
   if (el.dataset.html === html) return;
@@ -533,33 +482,7 @@ function inRange(list) {
 }
 
 function renderLists() {
-  const d = state.data;
-  const self = d.sync && d.sync.self;
   const kind = state.view === 'day' ? 'daily' : 'monthly';
-
-  // Perangkat: selalu semua perangkat agar bisa dibandingkan.
-  const byM = new Map();
-  for (const r of inRange(d[kind] || [])) groupInto(byM, r.m, r);
-  const ms = d.machines.map((m) => ({ m, s: byM.get(m.id) || emptySum() })).sort((a, b) => metricOf(b.s) - metricOf(a.s));
-  const all = ms.reduce((a, x) => addTo(a, x.s), emptySum());
-  const topAll = Math.max(1, metricOf(all));
-  const dev = (id, name, meta, s, tag = '') => `<button class="row dev${state.machine === id ? ' on' : ''}" data-k="${esc(id)}" data-m="${esc(id)}" aria-pressed="${state.machine === id}">
-      <span class="name"><span>${esc(name)}</span>${tag}</span>
-      <span class="val" title="${fmtFull.format(metricOf(s))}">${fmtC.format(metricOf(s))}</span>
-      <span class="meta">${meta}</span>
-      ${trackHtml(((metricOf(s) / topAll) * 100).toFixed(1), s)}
-    </button>`;
-  const devRows = ms.map(({ m, s }) => {
-    const rel = relTime(m.last_seen);
-    return dev(m.id, m.name, `<span class="dot ${rel ? '' : 'ok'}"></span>${rel ? 'Terakhir aktif ' + rel : 'Online'}, ${esc(m.user)}, ${fmtFull.format(s.n)} balasan`, s,
-      m.id === self ? '<em class="you">komputer ini</em>' : '');
-  }).join('');
-  // "Semua perangkat" hanya berguna sebagai pilihan bila perangkatnya lebih dari satu
-  fillList($('listMachines'), ms.length > 1
-    ? dev('all', 'Semua perangkat', `${ms.length} perangkat, ${fmtFull.format(all.n)} balasan`, all) + devRows
-    : devRows || '<p class="empty-list">Belum ada perangkat yang mengirim data.</p>');
-
-  // Model: mengikuti filter perangkat.
   const byMo = new Map();
   for (const r of inRange(rows(kind))) groupInto(byMo, r.mo, r);
   const mos = [...byMo.entries()].map(([mo, s]) => ({ mo, s })).filter((x) => x.s.n > 0).sort((a, b) => metricOf(b.s) - metricOf(a.s));
@@ -591,28 +514,12 @@ function moveSegIndicator(animate) {
 async function openSettings() {
   const s = await window.api.getSettings();
   const f = $('frm');
-  f.supabaseUrl.value = s.supabaseUrl;
-  f.supabaseKey.value = s.supabaseKey;
-  f.teamKey.value = s.teamKey;
-  f.displayName.value = s.displayName;
-  f.displayName.placeholder = s.hostname;
   f.autostart.checked = s.autostart;
-  $('devInfo').textContent = `Komputer ini: ${s.hostname}, pengguna ${s.user}, versi ${s.version}`;
-  setMsg('', '');
+  $('devInfo').textContent = `Komputer ini: ${s.hostname}, pengguna ${s.user}. Log dibaca dari ${s.logFolders.join(', ')}`;
   $('verNow').textContent = s.version;
   $('verMsg').textContent = '';
   $('dlg').showModal();
 }
-
-function formValues() {
-  const f = $('frm');
-  return {
-    supabaseUrl: f.supabaseUrl.value, supabaseKey: f.supabaseKey.value, teamKey: f.teamKey.value,
-    displayName: f.displayName.value, autostart: f.autostart.checked,
-  };
-}
-
-function setMsg(text, cls) { const m = $('testMsg'); m.textContent = text; m.className = `msg ${cls}`; }
 
 // ---------- event ----------
 document.querySelectorAll('.seg button').forEach((b) => b.addEventListener('click', () => {
@@ -623,13 +530,6 @@ document.querySelectorAll('.seg button').forEach((b) => b.addEventListener('clic
   hideTip();
   render('grow');
 }));
-$('listMachines').addEventListener('click', (e) => {
-  const b = e.target.closest('.dev');
-  if (!b) return;
-  // klik perangkat yang sedang dipilih = kembali ke semua perangkat
-  state.machine = state.machine === b.dataset.m ? 'all' : b.dataset.m;
-  render('update');
-});
 $('fMetric').value = state.metric;
 $('fMetric').addEventListener('change', (e) => {
   state.metric = e.target.value;
@@ -650,7 +550,6 @@ $('heat').addEventListener('mousemove', (e) => {
 });
 $('heat').addEventListener('mouseleave', hideTip);
 
-document.addEventListener('click', (e) => { if (e.target.closest('[data-open-settings]')) openSettings(); });
 $('btnSettings').addEventListener('click', openSettings);
 $('btnTheme').addEventListener('click', () => {
   const root = document.documentElement;
@@ -659,34 +558,14 @@ $('btnTheme').addEventListener('click', () => {
   try { localStorage.setItem('tessly.theme', root.dataset.theme); } catch { /* berlaku sampai aplikasi ditutup */ }
 });
 $('btnCancel').addEventListener('click', () => $('dlg').close());
-$('btnTest').addEventListener('click', async () => {
-  setMsg('Menguji koneksi…', '');
-  const r = await window.api.testConnection(formValues());
-  setMsg(r.message, r.ok ? 'ok' : 'err');
-});
 $('frm').addEventListener('submit', async (e) => {
   e.preventDefault();
   $('btnSave').disabled = true;
-  setMsg('Menyimpan dan mengirim data…', '');
   try {
-    const st = await window.api.saveSettings(formValues());
-    if (st.lastError) setMsg(`Tersimpan, tapi pengiriman gagal: ${st.lastError}`, 'err');
-    else $('dlg').close();
+    await window.api.saveSettings({ autostart: $('frm').autostart.checked });
+    $('dlg').close();
   } finally {
     $('btnSave').disabled = false;
-    refresh();
-  }
-});
-$('btnSync').addEventListener('click', async () => {
-  const b = $('btnSync');
-  b.disabled = true;
-  b.classList.add('busy');
-  const started = Date.now();
-  try {
-    await window.api.syncNow();
-    await refresh();
-  } finally {
-    setTimeout(() => { b.disabled = false; b.classList.remove('busy'); }, Math.max(0, 600 - (Date.now() - started)));
   }
 });
 
@@ -802,11 +681,11 @@ window.addEventListener('resize', () => {
   resizeT = setTimeout(() => { renderChart('instant'); moveSegIndicator(false); }, 80);
 });
 
-let updT;
-window.api.onUpdated(() => { clearTimeout(updT); updT = setTimeout(refresh, 1500); });
-setInterval(() => { if (!document.hidden) refresh(); }, REFRESH_MS);
-document.addEventListener('visibilitychange', () => { if (!document.hidden) refresh(); });
+window.api.onData(receive);
+document.addEventListener('visibilitychange', () => { if (!document.hidden && stale) render('update'); });
+// lewat tengah malam: "hari ini" dan grafik bergeser walau belum ada log baru
+setInterval(() => { if (!document.hidden && state.data && dayKey(new Date()) !== renderedDay) render('update'); }, 60_000);
 
 document.fonts.ready.then(() => moveSegIndicator(false));
 moveSegIndicator(false);
-refresh();
+window.api.getData().then(receive);

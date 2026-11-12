@@ -12,11 +12,9 @@
   <header class="bar">
     <div class="brand">
       <p class="wordmark">tess<b>ly</b></p>
-      <p id="source" class="bar-sub">Memuat data…</p>
+      <p class="bar-sub">Claude Code di komputer ini</p>
     </div>
     <div class="bar-actions">
-      <span id="syncState" class="pill" role="status"><span class="dot"></span>Membaca log…</span>
-      <button id="btnConnect" class="btn primary" data-open-settings hidden>Hubungkan Supabase</button>
       <select id="fMetric" aria-label="Jenis token yang dihitung">
         <option value="io">Input + output</option>
         <option value="total">Semua, termasuk cache</option>
@@ -25,10 +23,6 @@
         <option value="cw">Cache tulis</option>
         <option value="cr">Cache baca</option>
       </select>
-      <button id="btnSync" class="btn" title="Baca log dan kirim sekarang">
-        <svg class="ico" viewBox="0 0 20 20" aria-hidden="true"><path d="M16 10a6 6 0 0 1-10.6 3.8M4 10a6 6 0 0 1 10.6-3.8"/><path d="M15 2.5v4h-4M5 17.5v-4h4"/></svg>
-        Sinkron
-      </button>
       <button id="btnTheme" class="btn icon" aria-label="Ganti mode terang atau gelap" title="Ganti mode terang atau gelap">
         <svg class="ico" viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="7"/><path d="M10 3a7 7 0 0 0 0 14z" fill="currentColor" stroke="none"/></svg>
       </button>
@@ -39,10 +33,8 @@
     </div>
   </header>
 
-  <div id="banner" class="banner" hidden></div>
-
   <main>
-    <h1 class="vh" id="pageTitle">Pemakaian token</h1>
+    <h1 class="vh">Pemakaian token</h1>
 
     <section class="kpis" aria-label="Ringkasan pemakaian">
       <article class="kpi loading" id="kToday">
@@ -91,16 +83,10 @@
         <div class="tip" id="tip"></div>
       </section>
 
-      <div class="stack">
-        <section class="card" aria-labelledby="hModel">
-          <div class="sec-head"><h2 id="hModel">Model</h2><span class="sub" id="rangeLabel2"></span></div>
-          <div id="listModels" class="rows"></div>
-        </section>
-        <section class="card" aria-labelledby="hDev">
-          <div class="sec-head"><h2 id="hDev">Perangkat</h2><span class="sub" id="rangeLabel1"></span></div>
-          <div id="listMachines" class="rows"></div>
-        </section>
-      </div>
+      <section class="card models" aria-labelledby="hModel">
+        <div class="sec-head"><h2 id="hModel">Model</h2><span class="sub" id="rangeLabel"></span></div>
+        <div id="listModels" class="rows"></div>
+      </section>
     </div>
 
     <footer class="foot">
@@ -131,24 +117,13 @@
     <form method="dialog" id="frm">
       <h2>Pengaturan</h2>
       <p class="sub" id="devInfo"></p>
-      <label class="field block"><span>URL proyek Supabase</span>
-        <input name="supabaseUrl" placeholder="https://xxxx.supabase.co" autocomplete="off" spellcheck="false"></label>
-      <label class="field block"><span>Kunci API (anon atau publishable)</span>
-        <input name="supabaseKey" type="password" autocomplete="off" spellcheck="false"></label>
-      <label class="field block"><span>Kunci tim</span>
-        <input name="teamKey" type="password" autocomplete="off" spellcheck="false">
-        <small>Kunci yang sama di semua komputer, dibuat saat menjalankan schema.sql.</small></label>
-      <label class="field block"><span>Nama perangkat (opsional)</span>
-        <input name="displayName" autocomplete="off"></label>
       <label class="check"><input type="checkbox" name="autostart"> Jalankan otomatis saat Windows menyala</label>
       <div class="ver-row">
         <span>Versi aplikasi <b id="verNow"></b></span>
         <span id="verMsg" class="sub" role="status"></span>
         <button type="button" class="btn" id="btnCheckUpd">Cek update</button>
       </div>
-      <p id="testMsg" class="msg" role="status"></p>
       <div class="dlg-actions">
-        <button type="button" class="btn" id="btnTest">Uji koneksi</button>
         <span class="grow"></span>
         <button type="button" class="btn ghost" id="btnCancel">Batal</button>
         <button type="submit" class="btn primary" id="btnSave">Simpan</button>

@@ -71,12 +71,6 @@ p { margin: 0; }
 .bar-sub { font-size: 12px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .bar-actions { display: flex; align-items: center; gap: 8px; flex: none; }
 
-.pill { display: inline-flex; align-items: center; gap: 8px; font-size: 13px; color: var(--ink-2); background: var(--s1); box-shadow: inset 0 0 0 1px var(--edge); padding: 9px 14px; border-radius: 12px; white-space: nowrap; transition: background-color .5s var(--ease); }
-.pill.flash { background: color-mix(in srgb, var(--good) 22%, var(--s1)); }
-.dot { width: 8px; height: 8px; border-radius: 50%; background: var(--muted); flex: none; display: inline-block; }
-.dot.ok { background: var(--good); }
-.dot.err { background: var(--critical); }
-
 .btn {
   font: inherit; font-size: 13px; color: var(--ink-2); cursor: pointer;
   display: inline-flex; align-items: center; gap: 8px;
@@ -91,8 +85,6 @@ p { margin: 0; }
 .btn.primary:hover { filter: brightness(1.08); color: var(--on-grad); }
 .btn:disabled { opacity: .55; cursor: not-allowed; }
 .ico { width: 15px; height: 15px; fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
-.btn.busy .ico { animation: spin .9s linear infinite; }
-@keyframes spin { to { transform: rotate(360deg); } }
 
 select, input {
   font: inherit; font-size: 13px; color: var(--ink); background: var(--s1);
@@ -108,14 +100,6 @@ select:hover, input:hover { background-color: var(--s2); }
 select:focus-visible, input:focus-visible { outline: 2px solid var(--a1); outline-offset: 0; }
 select option { background: var(--s2); color: var(--ink); }
 
-.banner {
-  max-width: 1204px; width: calc(100% - 56px); margin: 14px auto 0; padding: 8px 8px 8px 16px; border-radius: 14px;
-  background: var(--s1); color: var(--ink-2); font-size: 13px;
-  display: flex; gap: 12px; align-items: center; animation: drop .45s var(--ease) both;
-}
-.banner::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--critical); flex: none; }
-.banner span { flex: 1; }
-.banner .btn { background: var(--s2); font-size: 12px; padding: 7px 12px; white-space: nowrap; }
 @keyframes drop { from { opacity: 0; transform: translateY(-6px); } }
 
 main { max-width: 1260px; margin: 0 auto; padding: 18px 28px 32px; }
@@ -161,7 +145,8 @@ main { max-width: 1260px; margin: 0 auto; padding: 18px 28px 32px; }
 .row2 { display: grid; grid-template-columns: minmax(0, 1.9fr) minmax(0, 1fr); gap: 14px; margin-top: 14px; align-items: start; }
 .card { background: var(--s1); box-shadow: inset 0 0 0 1px var(--edge); border-radius: 22px; padding: 22px 24px 18px; min-width: 0; animation: rise .6s .18s var(--ease) backwards; }
 .chart-sec { position: relative; }
-.stack { display: grid; gap: 14px; min-width: 0; }
+/* daftar model ikut terlihat saat menggulir kalender di bawah grafik */
+.models { position: sticky; top: 14px; }
 .card h2 { font-size: 18px; font-weight: 700; letter-spacing: -0.01em; }
 .panel-head, .sec-head { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }
 .sec-head { margin-bottom: 8px; align-items: baseline; }
@@ -237,10 +222,6 @@ main { max-width: 1260px; margin: 0 auto; padding: 18px 28px 32px; }
   padding: 9px 10px; margin: 0 -10px; width: calc(100% + 20px); border: 0; border-radius: 12px; background: none;
   transition: background-color .15s;
 }
-button.row { cursor: pointer; }
-button.row:hover { background: var(--s2); }
-button.row:active { background: var(--s3); }
-.row.on { background: var(--s2); }
 .row .name { font-size: 13px; font-weight: 500; display: flex; align-items: center; gap: 8px; min-width: 0; }
 .row .name > span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .row .val { font-size: 13px; font-weight: 700; font-variant-numeric: tabular-nums; }
@@ -248,7 +229,6 @@ button.row:active { background: var(--s3); }
 .row .pb { grid-column: 1 / -1; display: block; height: 8px; border-radius: 5px; background: var(--track); margin-top: 7px; overflow: hidden; }
 .row .pb i { display: block; height: 100%; width: 0; min-width: 8px; border-radius: 5px; background: var(--grad); transition: width .9s var(--ease); }
 .row .pb i[data-w="0.0"] { min-width: 0; }
-.you { font-style: normal; font-size: 11px; font-weight: 500; color: var(--ink-2); background: var(--s3); border-radius: 6px; padding: 1px 7px; flex: none; }
 .empty-list { color: var(--muted); padding: 10px 0; font-size: 13px; }
 
 .foot { font-size: 12px; color: var(--muted); margin-top: 20px; display: flex; justify-content: space-between; align-items: flex-end; gap: 24px; }
@@ -263,18 +243,11 @@ dialog::backdrop { background: rgba(0, 0, 0, .55); animation: fade .28s ease; }
 @keyframes fade { from { opacity: 0; } }
 dialog h2 { font-size: 22px; letter-spacing: -0.02em; margin-bottom: 2px; }
 dialog .sub { margin-bottom: 16px; }
-dialog input:not([type="checkbox"]) { width: 100%; background: var(--track); }
 dialog .btn { background: var(--s2); }
 dialog .btn:hover { background: var(--s3); }
 dialog .btn.primary { background: var(--grad); }
-.field { display: flex; flex-direction: column; gap: 5px; font-size: 12px; color: var(--ink-2); }
-.field.block { margin-bottom: 12px; }
-.field small { font-size: 11px; color: var(--muted); }
 .check { display: flex; gap: 8px; align-items: center; font-size: 13px; margin: 2px 0 6px; cursor: pointer; }
 .check input { width: 15px; height: 15px; padding: 0; accent-color: var(--a2); cursor: pointer; }
-.msg { min-height: 18px; margin: 6px 0; font-size: 12.5px; }
-.msg.ok { color: var(--good); animation: drop .3s var(--ease); }
-.msg.err { color: var(--critical); }
 .dlg-actions { display: flex; gap: 8px; margin-top: 10px; }
 .ver-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; font-size: 13px; padding: 2px 0; margin-top: 16px; }
 .ver-row #verMsg { flex: 1; }
@@ -308,7 +281,6 @@ dialog .btn.primary { background: var(--grad); }
 @media (max-width: 940px) {
   .bar { padding: 14px 16px 0; flex-wrap: wrap; }
   main { padding: 14px 16px 28px; }
-  .banner { width: calc(100% - 32px); }
   .kpis, .row2 { grid-template-columns: 1fr; }
   .foot { flex-direction: column; align-items: flex-start; gap: 8px; }
 }
