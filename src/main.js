@@ -219,6 +219,9 @@ function createWindow(show) {
       app.quit();
     }, Number(process.env.TM_DELAY) || 4000));
   }
+  // buka atau klik jendela = cek update saat itu juga, supaya popup versi baru langsung muncul
+  win.on('show', () => updater.checkSoon());
+  win.on('focus', () => updater.checkSoon());
   win.on('close', (e) => {
     if (!quitting) {
       e.preventDefault();

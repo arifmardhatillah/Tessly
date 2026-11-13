@@ -3,12 +3,16 @@
 const { app, Notification } = require('electron');
 const { autoUpdater } = require('electron-updater');
 
-const CHECK_EVERY_MS = 4 * 60 * 60 * 1000;
-const FIRST_CHECK_MS = process.env.TM_FAKE_UPDATE ? 500 : 15 * 1000;
+// Rilis baru cepat ketahuan: cek tiap 10 menit, dan langsung saat jendela dibuka atau diklik.
+// Pengecekan hanya membaca daftar rilis GitHub (beberapa KB), jadi ringan.
+const CHECK_EVERY_MS = 10 * 60 * 1000;
+const FIRST_CHECK_MS = process.env.TM_FAKE_UPDATE ? 500 : 3 * 1000;
+const MIN_GAP_MS = 60 * 1000; // jarak minimal antar-pengecekan saat jendela berkali-kali diklik
 
 const state = { status: 'idle', version: null, notes: '', percent: 0, error: null, current: app.getVersion() };
 let hooks = { send: () => {}, isWindowVisible: () => false, showWindow: () => {}, refreshTray: () => {}, beforeQuit: () => {}, text: (k) => k };
 let notifiedVersion = null;
+let lastCheck = 0;
 
 function plainNotes(n) {
   if (!n) return '';
@@ -49,7 +53,9 @@ async function check(manual = false) {
     return getState();
   }
   if (state.status === 'downloading' || state.status === 'ready') return getState();
-  set({ status: 'checking', error: null });
+  lastCheck = Date.now();
+  // pengecekan otomatis tidak mengubah status, supaya popup yang sedang tampil tidak berkedip
+  if (manual) set({ status: 'checking', error: null });
   try {
     await autoUpdater.checkForUpdates();
   } catch (e) {
@@ -97,4 +103,9 @@ function init(h) {
   setInterval(() => check(false), CHECK_EVERY_MS);
 }
 
-module.exports = { init, check, download, install, getState };
+// Dipanggil saat jendela tampil atau mendapat fokus.
+function checkSoon() {
+  if (Date.now() - lastCheck >= MIN_GAP_MS) check(false);
+}
+
+module.exports = { init, check, checkSoon, download, install, getState };
