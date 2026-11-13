@@ -15,99 +15,87 @@
 
 <p align="center"><b>English</b> · <a href="README.id.md">Bahasa Indonesia</a></p>
 
-Tessly is a free Windows app that shows how many tokens **Claude Code** uses on your computer, by day, month and year. It sits in the system tray, and the numbers update the moment Claude Code finishes a reply.
+<p align="center">
+  <b>Tessly is a small Windows tray app that totals the tokens Claude Code uses on your computer,<br>today, this month and this year, and updates the moment a reply finishes.</b>
+</p>
 
 ## Why Tessly
 
-- **Live.** The total rises as soon as Claude Code finishes a reply, no refresh needed.
-- **Private.** Everything stays on your computer. Only token counts are kept, never your conversations.
-- **Free and open source.** MIT licensed, built from the code in this repository.
+Claude Code reports usage one session at a time. Tessly adds every session and every project together, keeps the history, and shows how your usage grows over days and months. Everything is read from files already on your computer, so it needs no account, no API key and no setup.
 
-<sub>The banner and screenshots use sample data.</sub>
+## Features
 
-## Download
-
-1. Open the [latest release](https://github.com/arifmardhatillah/Tessly/releases/latest) and download `Tessly-Setup-x.y.z.exe`.
-2. Run it. It installs for your user account only, no admin rights needed.
-
-Requirements: Windows 10 or 11, and [Claude Code](https://docs.anthropic.com/en/docs/claude-code) used on the same computer.
-
-### "Windows protected your PC"
-
-The installer is not code-signed yet, so Windows SmartScreen may show a blue warning the first time. Click **More info**, then **Run anyway**. The full source code is in this repository, and every installer is built from it.
-
-## What it shows
+<table>
+  <tr>
+    <td width="33%" valign="top"><b>Live totals</b><br>Today, this month and this year, each split into input, output, cache write and cache read.</td>
+    <td width="33%" valign="top"><b>Charts and trends</b><br>Daily, monthly or yearly bars with a moving-average line, so a busy week stands out.</td>
+    <td width="33%" valign="top"><b>Usage calendar</b><br>A color calendar of the last weeks shows your busiest days at a glance.</td>
+  </tr>
+  <tr>
+    <td valign="top"><b>Per model</b><br>See how your tokens divide between Opus, Sonnet and Haiku.</td>
+    <td valign="top"><b>Private by design</b><br>Only token counts are stored. Your conversations are never saved or sent anywhere.</td>
+    <td valign="top"><b>Quietly up to date</b><br>Light and dark mode, English and Indonesian, and one-click updates from inside the app.</td>
+  </tr>
+</table>
 
 <p align="center"><img src="docs/tour.gif" alt="Tessly tour: the Today total rises with a new reply, the chart switches between daily, monthly and yearly, then the app changes to light mode and back." width="100%"></p>
+<p align="center"><sub>The banner and tour use sample data.</sub></p>
 
-- Tokens today, this month and this year, split into input, output, cache write and cache read.
-- A daily, monthly or yearly chart with a moving-average trend line.
-- A color calendar of your busiest days.
-- Usage per model.
-- A filter for which tokens to count. "Input + output" (the default) shows new tokens only. Cache reads are usually much larger, because the whole conversation is resent with every reply.
+## Get started
 
-The app is available in English and Indonesian (Settings > Language).
+1. Download `Tessly-Setup-x.y.z.exe` from the [latest release](https://github.com/arifmardhatillah/Tessly/releases/latest).
+2. Run it. It installs for your Windows account only, no admin rights needed.
+3. Use Claude Code as usual. Click the Tessly icon in the system tray to open the dashboard.
+
+**Requirements:** Windows 10 or 11, with [Claude Code](https://docs.anthropic.com/en/docs/claude-code) used on the same computer.
+
+> [!NOTE]
+> The installer is not code-signed yet, so Windows SmartScreen may show "Windows protected your PC" the first time. Click **More info**, then **Run anyway**. Every installer is built from the source code in this repository.
 
 ## Privacy
 
-Everything stays on your computer. Tessly reads the session logs Claude Code already writes to `%USERPROFILE%\.claude\projects` (and `~/.config/claude/projects`, or `CLAUDE_CONFIG_DIR` if set). From those logs it keeps only token counts per date and model. It never stores conversation text, file names or project folders.
+- **Reads local files only.** Tessly reads the session logs Claude Code already writes to `%USERPROFILE%\.claude\projects`.
+- **Stores numbers only.** It keeps token counts per date and model, never conversation text, file names or project folders.
+- **Sends nothing.** Its only network request is checking this repository's releases for a new version.
 
-Tessly does not send your data anywhere. Its only network request is a check of this repository's GitHub Releases for app updates.
+## FAQ
 
-**Not counted:** usage on claude.ai (web and desktop chat). That data only exists on Anthropic's servers.
+<details>
+<summary><b>Why are cache reads so much larger than input and output?</b></summary>
+<br>
+Claude Code resends the whole conversation with every reply, and most of it is read from cache. That is why the default filter, "Input + output", counts only new tokens. You can switch the filter at the top of the dashboard.
+</details>
 
-## How it works
+<details>
+<summary><b>Does it count usage on claude.ai?</b></summary>
+<br>
+No. Chats on claude.ai (web and desktop) are stored only on Anthropic's servers, so Tessly cannot see them.
+</details>
 
-1. Windows tells Tessly when Claude Code writes to a log (`fs.watch`). Tessly then reads only the new part of that file. As a fallback, all logs are rescanned every 30 seconds.
-2. One model reply can appear in the log several times, so each reply is counted once by `message.id` + `requestId`.
-3. Totals per (date, model) are saved in `%APPDATA%\Tessly\history.json`. By default Claude Code deletes logs older than 30 days. Tessly keeps the highest value it has seen, so your history survives that cleanup. To keep Claude Code's own logs longer, add `"cleanupPeriodDays": 365` to `~/.claude/settings.json`.
+<details>
+<summary><b>What happens when Claude Code deletes old logs?</b></summary>
+<br>
+Claude Code deletes logs older than 30 days by default. Tessly saves its own totals in <code>%APPDATA%\Tessly\history.json</code>, so your history stays. To keep Claude Code's logs longer as well, add <code>"cleanupPeriodDays": 365</code> to <code>~/.claude/settings.json</code>.
+</details>
 
-## Updates
+<details>
+<summary><b>How do updates work?</b></summary>
+<br>
+Tessly checks for a new version when it starts, when you open its window, and every 10 minutes. When one is ready, a popup offers to install it, and a progress window shows while it installs. You can also check from Settings.
+</details>
 
-Tessly checks for a new version when it starts, when you open or click its window, and every 10 minutes. When one is available, a popup offers to download and install it. You can also do this from Settings > Check for updates.
+<details>
+<summary><b>How do I uninstall it?</b></summary>
+<br>
+Windows Settings > Apps > Installed apps > Tessly > Uninstall. To remove your saved history too, delete the <code>%APPDATA%\Tessly</code> folder.
+</details>
 
-## Uninstall
+## Contributing
 
-Windows Settings > Apps > Installed apps > Tessly > Uninstall. To remove your saved history as well, delete `%APPDATA%\Tessly`.
-
-## Development
-
-```bash
-npm install
-npm run test:scan   # test the log reader without Electron
-npm start           # run the app
-npm run dist        # build the installer into dist/ (without publishing)
-```
-
-If you start it from the VS Code terminal and get a `requestSingleInstanceLock` error, unset `ELECTRON_RUN_AS_NODE` first (Bash: `env -u ELECTRON_RUN_AS_NODE npm start`).
-
-Development hooks:
-
-| Variable | Effect |
-|---|---|
-| `CLAUDE_CONFIG_DIR=folder` | Read test logs instead of your real ones. |
-| `TM_SHOT=out.png` | Save a screenshot of the window and quit. |
-| `TM_JS="..."` | Run a script in the page before the screenshot, for example to click a tab. |
-| `TM_FAKE_UPDATE=9.9.9` | Show the update popup. `TM_FAKE_STATUS` (`downloading`, `ready`, `installing`) picks the stage. |
-| `TM_FRAMES=120` | With `TM_SHOT`, save that many frames in a row (`out-000.png`, ...) every `TM_FRAME_MS` ms (default 80), for demo GIFs. |
-
-Project layout:
-
-- `src/scanner.js`: reads logs incrementally, removes duplicates, sums per date and model
-- `src/history.js`: per date and model totals in `history.json`
-- `src/main.js`: tray, window, log watching, settings
-- `src/updater.js`: update checks and installs from GitHub Releases
-- `renderer/`: the dashboard (plain HTML, CSS and JS, SVG charts). All UI text is in `renderer/i18n.js`; the dropdown component is in `renderer/dropdown.js`.
-
-### Publishing a release
-
-1. Bump `version` in `package.json`.
-2. Write the changes in `build/release-notes.md` (shown in the update popup).
-3. Create a fine-grained GitHub token for the repository with *Contents: Read and write*.
-4. In PowerShell, from the project folder, run `powershell -ExecutionPolicy Bypass -File .\release.ps1`. The script asks for the token; it is not shown while you paste it.
+Bug reports and ideas are welcome in [Issues](https://github.com/arifmardhatillah/Tessly/issues). To build Tessly yourself or send a change, see [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## License
 
-[MIT](LICENSE). The bundled Space Grotesk font is licensed under the [SIL Open Font License 1.1](renderer/fonts/OFL.txt).
+[MIT](LICENSE) © Arif Mardhatillah. The bundled Space Grotesk font is licensed under the [SIL Open Font License 1.1](renderer/fonts/OFL.txt).
 
-Tessly is an independent project. It is not affiliated with, endorsed by or sponsored by Anthropic. "Claude" and "Claude Code" are trademarks of Anthropic, used here only to describe what the app works with.
+<sub>Tessly is an independent project. It is not affiliated with, endorsed by or sponsored by Anthropic. "Claude" and "Claude Code" are trademarks of Anthropic, used here only to describe what the app works with.</sub>
