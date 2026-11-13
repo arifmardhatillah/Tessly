@@ -1,0 +1,250 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tessly: Claude Code token tracker for Windows</title>
+<meta name="description" content="Tessly is a free, open-source Windows tray app that totals the tokens Claude Code uses on your computer, by day, month and year. Private, local and live.">
+<link rel="canonical" href="https://arifmardhatillah.github.io/Tessly/">
+<link rel="icon" type="image/png" href="favicon.png">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Tessly: Know every token you spend">
+<meta property="og:description" content="Free, open-source Claude Code token tracker for the Windows tray.">
+<meta property="og:url" content="https://arifmardhatillah.github.io/Tessly/">
+<meta property="og:image" content="https://arifmardhatillah.github.io/Tessly/social-preview.png">
+<meta name="twitter:card" content="summary_large_image">
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Tessly","applicationCategory":"DeveloperApplication","operatingSystem":"Windows 10, Windows 11","description":"Free, open-source Windows tray app that totals the tokens Claude Code uses, by day, month and year.","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"license":"https://opensource.org/licenses/MIT","downloadUrl":"https://github.com/arifmardhatillah/Tessly/releases/latest","author":{"@type":"Person","name":"Arif Mardhatillah"}}
+</script>
+<style>
+@font-face{font-family:"Space Grotesk";src:url("fonts/SpaceGrotesk-var.woff2") format("woff2");font-weight:300 700;font-display:swap}
+:root{
+  --bg:#141110;--bg2:#1c1715;--card:#211b19;--line:#33291f;--ink:#f6ece6;--mut:#b3a197;--dim:#8a776d;
+  --a1:#ffb04c;--a2:#ff6b5c;--a3:#ff4f8b;--grad:linear-gradient(90deg,var(--a1),var(--a2) 55%,var(--a3));
+  --r:18px;--max:1120px
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--ink);font:17px/1.6 "Space Grotesk",system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+a{color:inherit}
+.wrap{max-width:var(--max);margin:0 auto;padding:0 24px}
+/* nav */
+nav{position:sticky;top:0;z-index:5;background:rgba(20,17,16,.82);backdrop-filter:blur(10px);border-bottom:1px solid transparent;transition:border-color .2s}
+nav.sc{border-bottom-color:var(--line)}
+nav .wrap{display:flex;align-items:center;gap:28px;height:68px}
+.brand{display:flex;align-items:center;gap:10px;text-decoration:none;font-weight:700;font-size:24px;letter-spacing:-.5px}
+.brand img{width:32px;height:32px;border-radius:8px}
+.ly{background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+.links{display:flex;gap:24px;margin-left:auto;font-size:15px}
+.links+.lang{margin-left:0}
+.links a{text-decoration:none;color:var(--mut);transition:color .15s}
+.links a:hover{color:var(--ink)}
+.lang{margin-left:auto;border:1px solid var(--line);background:none;color:var(--mut);font:inherit;font-size:14px;border-radius:999px;padding:6px 12px;cursor:pointer}
+.lang:hover{color:var(--ink);border-color:var(--dim)}
+/* buttons */
+.btn{display:inline-flex;align-items:center;gap:10px;text-decoration:none;font-weight:700;border-radius:999px;padding:14px 26px;transition:transform .15s,box-shadow .2s,background .2s}
+.btn svg{width:20px;height:20px}
+.btn.pri{background:var(--grad);color:#fff;box-shadow:0 10px 30px rgba(255,90,90,.25)}
+.btn.pri:hover{transform:translateY(-2px);box-shadow:0 14px 36px rgba(255,90,90,.35)}
+.btn.sec{border:1px solid var(--line);color:var(--ink)}
+.btn.sec:hover{border-color:var(--dim);background:var(--bg2)}
+.btn:active{transform:translateY(0) scale(.98)}
+.btn:focus-visible,.lang:focus-visible,summary:focus-visible,.links a:focus-visible{outline:2px solid var(--a1);outline-offset:3px}
+/* hero */
+.hero{padding:72px 0 40px;background:radial-gradient(90% 70% at 0% 0%,#3a2218 0%,transparent 60%)}
+.hero .wrap{display:grid;grid-template-columns:1fr 1.15fr;gap:56px;align-items:center}
+.hero .wrap>*,.grid>*,.steps>*,.pl>*{min-width:0}
+h1{font-size:clamp(46px,6.4vw,84px);line-height:1;letter-spacing:-2.5px;margin:0 0 22px}
+.lead{font-size:20px;color:var(--mut);margin:0 0 30px;max-width:30ch}
+.cta{display:flex;flex-wrap:wrap;gap:12px;align-items:center}
+.meta{margin-top:18px;font-size:14px;color:var(--dim)}
+.meta b{color:var(--mut);font-weight:500}
+.shot{border-radius:var(--r);overflow:hidden;box-shadow:0 30px 80px rgba(0,0,0,.55),0 0 0 1px rgba(255,255,255,.06);background:#0b0b0b}
+.shot img{display:block;width:100%;height:auto}
+/* sections */
+section{padding:88px 0}
+.kick{font-size:14px;font-weight:500;color:var(--a2);margin:0 0 10px}
+h2{font-size:clamp(32px,4vw,46px);line-height:1.1;letter-spacing:-1.2px;margin:0 0 16px;max-width:20ch}
+.sub{color:var(--mut);max-width:58ch;margin:0 0 44px;font-size:18px}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.f{background:var(--card);border-radius:var(--r);padding:26px 24px}
+.f h3{margin:14px 0 6px;font-size:20px;letter-spacing:-.3px}
+.f p{margin:0;color:var(--mut);font-size:16px}
+.ic{width:42px;height:42px;border-radius:12px;display:grid;place-items:center;background:#2c2220}
+.ic svg{width:22px;height:22px;stroke:var(--a1);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.f.wide{grid-column:span 2;display:grid;grid-template-columns:auto 1fr;gap:20px;align-items:center}
+.f.wide h3{margin-top:0}
+/* steps */
+.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;counter-reset:s}
+.st{border-top:2px solid var(--line);padding-top:22px}
+.st:before{counter-increment:s;content:"0" counter(s);font-weight:700;font-size:15px;background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+.st h3{margin:8px 0 6px;font-size:21px}
+.st p{margin:0;color:var(--mut);font-size:16px}
+.note{margin-top:28px;background:var(--bg2);border-radius:14px;padding:16px 20px;color:var(--mut);font-size:15px}
+.note b{color:var(--ink)}
+/* privacy */
+.priv{background:var(--bg2)}
+.pl{display:grid;grid-template-columns:repeat(3,1fr);gap:28px}
+.pl h3{font-size:20px;margin:0 0 6px}
+.pl p{margin:0;color:var(--mut);font-size:16px}
+code{font-family:Consolas,monospace;font-size:.88em;background:#2a221f;border-radius:6px;padding:2px 6px;color:var(--ink)}
+/* faq */
+details{border-bottom:1px solid var(--line)}
+summary{cursor:pointer;list-style:none;padding:20px 0;font-weight:500;font-size:19px;display:flex;justify-content:space-between;gap:16px}
+summary::-webkit-details-marker{display:none}
+summary:after{content:"+";color:var(--a2);font-size:24px;line-height:1;transition:transform .2s}
+details[open] summary:after{transform:rotate(45deg)}
+details p{margin:0 0 22px;color:var(--mut);max-width:70ch}
+/* final */
+.end{text-align:center;padding:96px 0}
+.end h2{margin:0 auto 16px}
+.end .sub{margin:0 auto 32px}
+.end .cta{justify-content:center}
+footer{border-top:1px solid var(--line);padding:32px 0 48px;color:var(--dim);font-size:14px}
+footer .wrap{display:flex;flex-wrap:wrap;gap:12px 28px;justify-content:space-between}
+footer a{color:var(--mut)}
+footer p{margin:0;max-width:70ch}
+/* motion */
+.rv{opacity:0;transform:translateY(22px);transition:opacity .6s cubic-bezier(.2,.7,.2,1),transform .6s cubic-bezier(.2,.7,.2,1)}
+.rv.in{opacity:1;transform:none}
+.no-js .rv{opacity:1;transform:none}
+@media (prefers-reduced-motion:reduce){.rv{opacity:1;transform:none;transition:none}html{scroll-behavior:auto}.btn,.btn:hover{transition:none;transform:none}}
+/* responsive */
+@media (max-width:900px){
+  .hero .wrap{grid-template-columns:1fr;gap:40px}
+  .grid,.steps,.pl{grid-template-columns:1fr}
+  .f.wide{grid-column:auto;grid-template-columns:1fr}
+  .links{display:none}
+  .links+.lang{margin-left:auto}
+  section{padding:64px 0}
+}
+@media (max-width:420px){.btn{width:100%;justify-content:center}}
+</style>
+</head>
+<body class="no-js">
+<nav id="nav"><div class="wrap">
+  <a class="brand" href="#top"><img src="icon.png" alt="" width="32" height="32"><span>tess<span class="ly">ly</span></span></a>
+  <div class="links"><a href="#features" data-t="nFeat">Features</a><a href="#privacy" data-t="nPriv">Privacy</a><a href="#faq">FAQ</a><a href="https://github.com/arifmardhatillah/Tessly">GitHub</a></div>
+  <button class="lang" id="lang" type="button" aria-label="Ganti ke Bahasa Indonesia">ID</button>
+</div></nav>
+
+<header class="hero" id="top"><div class="wrap">
+  <div>
+    <h1 class="rv">Know every token you spend.</h1>
+    <p class="lead rv" data-t="lead">Tessly totals the tokens Claude Code uses on your computer, today, this month and this year, right from the Windows tray.</p>
+    <div class="cta rv">
+      <a class="btn pri dl" href="https://github.com/arifmardhatillah/Tessly/releases/latest"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12M6 10l6 6 6-6M4 21h16"/></svg><span data-t="dl">Download for Windows</span></a>
+      <a class="btn sec" href="https://github.com/arifmardhatillah/Tessly" data-t="src">View source</a>
+    </div>
+    <p class="meta rv"><b class="ver">Free</b> · <span data-t="meta">Open source (MIT) · Windows 10 and 11</span></p>
+  </div>
+  <div class="shot rv"><img src="tour.gif" width="900" height="843" alt="Tessly dashboard: the Today total rises with a new reply, the chart switches between daily, monthly and yearly, then the app changes to light mode and back."></div>
+</div></header>
+
+<section id="features"><div class="wrap">
+  <p class="kick rv" data-t="k1">What you get</p>
+  <h2 class="rv" data-t="h1">All your Claude Code usage, added up.</h2>
+  <p class="sub rv" data-t="s1">Claude Code reports usage one session at a time. Tessly adds every session and project together, keeps the history, and shows how it grows.</p>
+  <div class="grid">
+    <div class="f rv"><div class="ic"><svg viewBox="0 0 24 24"><path d="M4 19V9M10 19V5M16 19v-7M22 19H2"/></svg></div><h3 data-t="f1">Live totals</h3><p data-t="f1p">Today, this month and this year, split into input, output, cache write and cache read.</p></div>
+    <div class="f rv"><div class="ic"><svg viewBox="0 0 24 24"><path d="M3 17l5-5 4 3 8-8"/><path d="M15 7h5v5"/></svg></div><h3 data-t="f2">Charts and trends</h3><p data-t="f2p">Daily, monthly or yearly bars with a moving-average line, so a busy week stands out.</p></div>
+    <div class="f rv"><div class="ic"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="17" rx="3"/><path d="M3 9h18M8 2v4M16 2v4"/></svg></div><h3 data-t="f3">Usage calendar</h3><p data-t="f3p">A color calendar shows your busiest days at a glance.</p></div>
+    <div class="f rv"><div class="ic"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 3v9l6 4"/></svg></div><h3 data-t="f4">Per model</h3><p data-t="f4p">See how your tokens divide between Opus, Sonnet and Haiku.</p></div>
+    <div class="f wide rv"><div class="ic"><svg viewBox="0 0 24 24"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/></svg></div><div><h3 data-t="f5">Private and light</h3><p data-t="f5p">No account, no API key, no setup. Light and dark mode, English and Indonesian, and one-click updates from inside the app.</p></div></div>
+  </div>
+</div></section>
+
+<section id="start" style="padding-top:0"><div class="wrap">
+  <p class="kick rv" data-t="k2">Get started</p>
+  <h2 class="rv" data-t="h2">Running in a minute.</h2>
+  <div class="steps" style="margin-top:36px">
+    <div class="st rv"><h3 data-t="t1">Download</h3><p data-t="t1p">Get the installer from the latest release on GitHub.</p></div>
+    <div class="st rv"><h3 data-t="t2">Install</h3><p data-t="t2p">Run it. It installs for your Windows account only, no admin rights needed.</p></div>
+    <div class="st rv"><h3 data-t="t3">Keep working</h3><p data-t="t3p">Use Claude Code as usual, then click the Tessly icon in the tray to see your totals.</p></div>
+  </div>
+  <p class="note rv" data-t="ss">The installer is not code-signed yet, so Windows may show <b>"Windows protected your PC"</b> the first time. Click <b>More info</b>, then <b>Run anyway</b>. Every installer is built from the public source code.</p>
+</div></section>
+
+<section class="priv" id="privacy"><div class="wrap">
+  <p class="kick rv" data-t="k3">Privacy</p>
+  <h2 class="rv" data-t="h3">Your conversations stay yours.</h2>
+  <p class="sub rv" data-t="s3">Tessly works entirely on your computer.</p>
+  <div class="pl">
+    <div class="rv"><h3 data-t="p1">Reads local files only</h3><p data-t="p1p">It reads the session logs Claude Code already writes to <code>%USERPROFILE%\.claude\projects</code>.</p></div>
+    <div class="rv"><h3 data-t="p2">Stores numbers only</h3><p data-t="p2p">Token counts per date and model. Never conversation text, file names or project folders.</p></div>
+    <div class="rv"><h3 data-t="p3">Sends nothing</h3><p data-t="p3p">Its only network request checks GitHub for a new version of Tessly.</p></div>
+  </div>
+</div></section>
+
+<section id="faq"><div class="wrap">
+  <p class="kick rv">FAQ</p>
+  <h2 class="rv" data-t="h4">Questions</h2>
+  <div class="rv" style="margin-top:28px">
+    <details><summary data-t="q1">Why are cache reads so much larger than input and output?</summary><p data-t="a1">Claude Code resends the whole conversation with every reply, and most of it is read from cache. That is why the default filter, "Input + output", counts only new tokens.</p></details>
+    <details><summary data-t="q2">Does it count usage on claude.ai?</summary><p data-t="a2">No. Chats on claude.ai (web and desktop) are stored only on Anthropic's servers, so Tessly cannot see them.</p></details>
+    <details><summary data-t="q3">What happens when Claude Code deletes old logs?</summary><p data-t="a3">Claude Code deletes logs older than 30 days by default. Tessly keeps its own totals, so your history stays.</p></details>
+    <details><summary data-t="q4">How do updates work?</summary><p data-t="a4">Tessly checks for a new version when it starts, when you open its window, and every 10 minutes. A popup offers to install it, with a progress window while it installs.</p></details>
+    <details><summary data-t="q5">Is it really free?</summary><p data-t="a5">Yes. Tessly is open source under the MIT license, with no ads, accounts or paid tiers.</p></details>
+  </div>
+</div></section>
+
+<section class="end"><div class="wrap">
+  <h2 class="rv" data-t="h5">Start counting today.</h2>
+  <p class="sub rv" data-t="s5">Free for Windows 10 and 11.</p>
+  <div class="cta rv"><a class="btn pri dl" href="https://github.com/arifmardhatillah/Tessly/releases/latest"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12M6 10l6 6 6-6M4 21h16"/></svg><span data-t="dl">Download for Windows</span></a></div>
+</div></section>
+
+<footer><div class="wrap">
+  <p>© 2026 Arif Mardhatillah · <a href="https://github.com/arifmardhatillah/Tessly/blob/main/LICENSE">MIT license</a> · <a href="https://github.com/arifmardhatillah/Tessly">GitHub</a> · <a href="https://github.com/arifmardhatillah/Tessly/issues" data-t="bug">Report a bug</a></p>
+  <p data-t="disc">Tessly is an independent project, not affiliated with, endorsed by or sponsored by Anthropic. "Claude" and "Claude Code" are trademarks of Anthropic.</p>
+</div></footer>
+
+<script>
+document.body.classList.remove('no-js');
+const ID={nFeat:'Fitur',nPriv:'Privasi',
+lead:'Tessly menjumlahkan token yang dipakai Claude Code di komputer Anda, hari ini, bulan ini, dan tahun ini, langsung dari system tray Windows.',
+dl:'Unduh untuk Windows',src:'Lihat kode sumber',meta:'Open source (MIT) · Windows 10 dan 11',
+k1:'Yang Anda dapat',h1:'Semua pemakaian Claude Code, dijumlahkan.',s1:'Claude Code melaporkan pemakaian per sesi. Tessly menjumlahkan semua sesi dan proyek, menyimpan riwayatnya, dan menampilkan pertumbuhannya.',
+f1:'Total langsung',f1p:'Hari ini, bulan ini, dan tahun ini, dirinci menjadi input, output, cache tulis, dan cache baca.',
+f2:'Grafik dan tren',f2p:'Batang harian, bulanan, atau tahunan dengan garis rata-rata, sehingga minggu yang sibuk langsung terlihat.',
+f3:'Kalender pemakaian',f3p:'Kalender berwarna menunjukkan hari tersibuk Anda sekilas.',
+f4:'Per model',f4p:'Lihat pembagian token Anda di antara Opus, Sonnet, dan Haiku.',
+f5:'Pribadi dan ringan',f5p:'Tanpa akun, tanpa API key, tanpa pengaturan. Mode terang dan gelap, bahasa Indonesia dan Inggris, serta update satu klik dari dalam aplikasi.',
+k2:'Mulai memakai',h2:'Siap dalam semenit.',
+t1:'Unduh',t1p:'Ambil installer dari rilis terbaru di GitHub.',t2:'Pasang',t2p:'Jalankan. Pemasangan hanya untuk akun Windows Anda, tanpa hak admin.',t3:'Lanjut bekerja',t3p:'Pakai Claude Code seperti biasa, lalu klik ikon Tessly di tray untuk melihat totalnya.',
+ss:'Installer belum ditandatangani (code signing), jadi Windows bisa menampilkan <b>"Windows protected your PC"</b> saat pertama dijalankan. Klik <b>More info</b>, lalu <b>Run anyway</b>. Setiap installer dibuat dari kode sumber yang publik.',
+k3:'Privasi',h3:'Percakapan Anda tetap milik Anda.',s3:'Tessly bekerja sepenuhnya di komputer Anda.',
+p1:'Hanya membaca file lokal',p1p:'Membaca log sesi yang memang sudah ditulis Claude Code di <code>%USERPROFILE%\\.claude\\projects</code>.',
+p2:'Hanya menyimpan angka',p2p:'Jumlah token per tanggal dan model. Tidak pernah isi percakapan, nama file, atau folder proyek.',
+p3:'Tidak mengirim apa pun',p3p:'Satu-satunya akses internet adalah mengecek versi baru Tessly di GitHub.',
+h4:'Tanya jawab',
+q1:'Kenapa cache baca jauh lebih besar daripada input dan output?',a1:'Claude Code mengirim ulang seluruh percakapan di setiap balasan, dan sebagian besarnya dibaca dari cache. Karena itu filter bawaan, "Input + output", hanya menghitung token baru.',
+q2:'Apakah pemakaian di claude.ai ikut dihitung?',a2:'Tidak. Percakapan di claude.ai (web dan desktop) hanya tersimpan di server Anthropic, jadi Tessly tidak bisa melihatnya.',
+q3:'Bagaimana kalau Claude Code menghapus log lama?',a3:'Secara bawaan Claude Code menghapus log yang lebih tua dari 30 hari. Tessly menyimpan totalnya sendiri, jadi riwayat Anda tetap ada.',
+q4:'Bagaimana cara update-nya?',a4:'Tessly mengecek versi baru saat menyala, saat jendelanya dibuka, dan setiap 10 menit. Popup menawarkan pemasangan, dengan jendela progres selama memasang.',
+q5:'Apakah benar-benar gratis?',a5:'Ya. Tessly open source dengan lisensi MIT, tanpa iklan, akun, atau versi berbayar.',
+h5:'Mulai hitung hari ini.',s5:'Gratis untuk Windows 10 dan 11.',bug:'Laporkan bug',
+disc:'Tessly adalah proyek independen, tidak berafiliasi dengan, tidak didukung, dan tidak disponsori oleh Anthropic. "Claude" dan "Claude Code" adalah merek dagang Anthropic.'};
+const EN={};document.querySelectorAll('[data-t]').forEach(e=>EN[e.dataset.t]=e.innerHTML);
+const lb=document.getElementById('lang');
+function setLang(l){const d=l==='id'?ID:EN;document.documentElement.lang=l;
+  document.querySelectorAll('[data-t]').forEach(e=>{if(d[e.dataset.t])e.innerHTML=d[e.dataset.t]});
+  lb.textContent=l==='id'?'EN':'ID';lb.setAttribute('aria-label',l==='id'?'Switch to English':'Ganti ke Bahasa Indonesia');
+  try{localStorage.setItem('tessly-lang',l)}catch(e){}}
+let cur='en';try{cur=localStorage.getItem('tessly-lang')||((navigator.language||'').startsWith('id')?'id':'en')}catch(e){}
+if(cur==='id')setLang('id');
+lb.addEventListener('click',()=>{cur=cur==='id'?'en':'id';setLang(cur)});
+// nav border on scroll
+const nav=document.getElementById('nav');addEventListener('scroll',()=>nav.classList.toggle('sc',scrollY>8),{passive:true});
+// reveal
+const io=new IntersectionObserver(es=>es.forEach(x=>{if(x.isIntersecting){x.target.classList.add('in');io.unobserve(x.target)}}),{threshold:.12});
+document.querySelectorAll('.rv').forEach((e,i)=>{e.style.transitionDelay=(i%4)*70+'ms';io.observe(e)});
+// latest version + direct download link
+fetch('https://api.github.com/repos/arifmardhatillah/Tessly/releases/latest').then(r=>r.ok?r.json():null).then(r=>{
+  if(!r)return;const a=(r.assets||[]).find(x=>/\.exe$/.test(x.name));
+  if(a)document.querySelectorAll('a.dl').forEach(l=>l.href=a.browser_download_url);
+  document.querySelector('.ver').textContent='v'+r.tag_name.replace(/^v/,'')+(a?' · '+Math.round(a.size/1048576)+' MB':'');
+}).catch(()=>{});
+</script>
+</body>
+</html>
