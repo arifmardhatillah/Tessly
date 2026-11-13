@@ -2,72 +2,97 @@
 
 *Know every token you spend.*
 
-Aplikasi desktop Windows untuk memantau pemakaian token **Claude Code** di komputer ini, per hari, per bulan, dan per tahun. Angka naik begitu Claude Code selesai membalas.
+**English** · [Bahasa Indonesia](README.id.md)
 
-## Cara kerja
+Tessly is a free Windows app that shows how many tokens **Claude Code** uses on your computer, by day, month and year. It sits in the system tray, and the numbers update the moment Claude Code finishes a reply.
 
-1. Tessly berjalan di system tray dan memantau log Claude Code di `%USERPROFILE%\.claude\projects\**\*.jsonl`.
-2. Begitu Claude Code menulis log, Windows memberi tahu Tessly (`fs.watch`), lalu hanya bagian file yang baru yang dibaca. Sebagai cadangan, semua log diperiksa ulang tiap 30 detik.
-3. Satu balasan model bisa tercatat beberapa kali di log, jadi setiap balasan dihitung satu kali berdasarkan `message.id` + `requestId`.
-4. Total per (tanggal, model) disimpan di `history.json` di folder data aplikasi (`%APPDATA%\Tessly`). Isi percakapan, nama file, dan folder proyek tidak disimpan, hanya angka token. Tidak ada data yang dikirim ke internet.
-5. Dashboard menerima angka baru langsung dari proses utama, tanpa memuat ulang berkala.
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/screenshot-dark.png">
+  <img alt="Tessly dashboard: today, this month and this year totals, a daily chart with a 7-day average line, a usage calendar and a per-model list" src="docs/screenshot-light.png">
+</picture>
 
-**Tidak termasuk:** pemakaian claude.ai (web dan aplikasi chat). Data itu hanya ada di server Anthropic dan tidak tercatat di komputer.
+<sub>Screenshot with sample data.</sub>
 
-## Pemasangan
+## Download
 
-Jalankan `Tessly Setup x.y.z.exe` dari folder `dist`. Pemasangan per pengguna, tanpa hak admin.
+1. Open the [latest release](https://github.com/arifmardhatillah/Tessly/releases/latest) and download `Tessly.Setup.x.y.z.exe`.
+2. Run it. It installs for your user account only, no admin rights needed.
 
-Tampilan tersedia dalam bahasa Indonesia dan Inggris (Pengaturan > Bahasa); menu tray dan notifikasi ikut berganti.
+Requirements: Windows 10 or 11, and [Claude Code](https://docs.anthropic.com/en/docs/claude-code) used on the same computer.
 
-Aplikasi berjalan otomatis setiap Windows menyala (bisa dimatikan di Pengaturan). Menutup jendela hanya menyembunyikannya ke tray. Untuk benar-benar menghentikan aplikasi, klik kanan ikon tray lalu pilih **Keluar**.
+### "Windows protected your PC"
 
-## Update aplikasi
+The installer is not code-signed yet, so Windows SmartScreen may show a blue warning the first time. Click **More info**, then **Run anyway**. The full source code is in this repository, and every installer is built from it.
 
-Tessly mengecek GitHub Releases (`arifmardhatillah/Tessly`) saat aplikasi menyala, saat jendelanya dibuka atau diklik, dan setiap 10 menit. Kalau ada versi baru:
+## What it shows
 
-- Popup muncul di pojok kanan bawah: **Unduh dan pasang**, lalu **Pasang sekarang**. Aplikasi tertutup sebentar dan terbuka lagi dengan versi baru.
-- Kalau jendela sedang tersembunyi di tray, muncul notifikasi Windows, dan menu tray mendapat item "Unduh update" atau "Pasang update".
-- Pilih **Nanti** kalau tidak ingin sekarang. Update yang sudah terunduh otomatis dipasang saat aplikasi ditutup.
-- Pengecekan manual: buka **Pengaturan**, lalu klik **Cek update**. Kalau ada versi baru, unduh dan pasang bisa langsung dari situ.
-- Saat memasang, jendela installer menampilkan progresnya, lalu Tessly terbuka lagi sendiri.
+- Tokens today, this month and this year, split into input, output, cache write and cache read.
+- A daily, monthly or yearly chart with a moving-average trend line.
+- A color calendar of your busiest days.
+- Usage per model.
+- A filter for which tokens to count. "Input + output" (the default) shows new tokens only. Cache reads are usually much larger, because the whole conversation is resent with every reply.
 
-### Menerbitkan versi baru
+The app is available in English and Indonesian (Settings > Language).
 
-1. Naikkan `version` di `package.json`.
-2. Tulis perubahan di `build/release-notes.md` (isinya tampil di popup).
-3. Buat token GitHub (fine-grained) untuk repo Tessly dengan izin *Contents: Read and write*.
-4. Di PowerShell, dari folder proyek:
-   ```powershell
-   powershell -ExecutionPolicy Bypass -File .\release.ps1
-   ```
-   Skrip akan meminta token. Tempel dengan klik kanan, lalu tekan Enter. Token tidak terlihat saat ditempel, itu normal.
+## Privacy
 
-Repo harus **publik** agar aplikasi bisa membaca rilis tanpa token. Kode tidak berisi rahasia.
+Everything stays on your computer. Tessly reads the session logs Claude Code already writes to `%USERPROFILE%\.claude\projects` (and `~/.config/claude/projects`, or `CLAUDE_CONFIG_DIR` if set). From those logs it keeps only token counts per date and model. It never stores conversation text, file names or project folders.
 
-## Catatan angka
+Tessly does not send your data anywhere. Its only network request is a check of this repository's GitHub Releases for app updates.
 
-- **Total tidak pernah turun.** Secara bawaan Claude Code menghapus log yang lebih tua dari 30 hari. `history.json` menyimpan nilai tertinggi yang pernah terbaca, jadi riwayat tetap aman setelah log terhapus. Riwayat hanya mencakup hari-hari sejak Tessly terpasang (ditambah log yang masih ada saat itu). Kalau ingin log Claude Code disimpan lebih lama, tambahkan `"cleanupPeriodDays": 365` di `~/.claude/settings.json`.
-- **Tanggal** mengikuti zona waktu komputer (WIB).
-- **Cache baca** biasanya jauh lebih besar dari jenis token lain. Pilih "Input + output" di filter jenis token untuk melihat token yang benar-benar baru.
+**Not counted:** usage on claude.ai (web and desktop chat). That data only exists on Anthropic's servers.
 
-## Pengembangan
+## How it works
+
+1. Windows tells Tessly when Claude Code writes to a log (`fs.watch`). Tessly then reads only the new part of that file. As a fallback, all logs are rescanned every 30 seconds.
+2. One model reply can appear in the log several times, so each reply is counted once by `message.id` + `requestId`.
+3. Totals per (date, model) are saved in `%APPDATA%\Tessly\history.json`. By default Claude Code deletes logs older than 30 days. Tessly keeps the highest value it has seen, so your history survives that cleanup. To keep Claude Code's own logs longer, add `"cleanupPeriodDays": 365` to `~/.claude/settings.json`.
+
+## Updates
+
+Tessly checks for a new version when it starts, when you open or click its window, and every 10 minutes. When one is available, a popup offers to download and install it. You can also do this from Settings > Check for updates.
+
+## Uninstall
+
+Windows Settings > Apps > Installed apps > Tessly > Uninstall. To remove your saved history as well, delete `%APPDATA%\Tessly`.
+
+## Development
 
 ```bash
 npm install
-npm run test:scan   # uji pembaca log tanpa Electron
-npm start           # jalankan aplikasi
-npm run dist        # buat installer di folder dist/ (tanpa menerbitkan)
+npm run test:scan   # test the log reader without Electron
+npm start           # run the app
+npm run dist        # build the installer into dist/ (without publishing)
 ```
 
-Kalau dijalankan dari terminal VS Code dan muncul error `requestSingleInstanceLock`, hapus dulu variabel `ELECTRON_RUN_AS_NODE` (Bash: `env -u ELECTRON_RUN_AS_NODE npm start`).
+If you start it from the VS Code terminal and get a `requestSingleInstanceLock` error, unset `ELECTRON_RUN_AS_NODE` first (Bash: `env -u ELECTRON_RUN_AS_NODE npm start`).
 
-Tangkapan layar tanpa membuka jendela: `TM_SHOT=hasil.png npm start`. Tambahkan `TM_JS="..."` untuk menjalankan skrip di halaman sebelum dipotret (misalnya mengklik tab), dan `CLAUDE_CONFIG_DIR=folder` untuk membaca log uji alih-alih log asli.
+Development hooks:
 
-Struktur:
+| Variable | Effect |
+|---|---|
+| `CLAUDE_CONFIG_DIR=folder` | Read test logs instead of your real ones. |
+| `TM_SHOT=out.png` | Save a screenshot of the window and quit. |
+| `TM_JS="..."` | Run a script in the page before the screenshot, for example to click a tab. |
+| `TM_FAKE_UPDATE=9.9.9` | Show the update popup. `TM_FAKE_STATUS` (`downloading`, `ready`, `installing`) picks the stage. |
 
-- `src/scanner.js`: membaca log secara bertahap, membuang duplikat, menjumlahkan per tanggal dan model
-- `src/history.js`: riwayat total per tanggal dan model di `history.json`
-- `src/main.js`: tray, jendela, pemantauan log, pengaturan
-- `src/updater.js`: cek dan pasang update dari GitHub Releases
-- `renderer/`: dashboard (HTML/CSS/JS biasa, grafik SVG); semua teks antarmuka ada di `renderer/i18n.js`, dropdown di `renderer/dropdown.js`
+Project layout:
+
+- `src/scanner.js`: reads logs incrementally, removes duplicates, sums per date and model
+- `src/history.js`: per date and model totals in `history.json`
+- `src/main.js`: tray, window, log watching, settings
+- `src/updater.js`: update checks and installs from GitHub Releases
+- `renderer/`: the dashboard (plain HTML, CSS and JS, SVG charts). All UI text is in `renderer/i18n.js`; the dropdown component is in `renderer/dropdown.js`.
+
+### Publishing a release
+
+1. Bump `version` in `package.json`.
+2. Write the changes in `build/release-notes.md` (shown in the update popup).
+3. Create a fine-grained GitHub token for the repository with *Contents: Read and write*.
+4. In PowerShell, from the project folder, run `powershell -ExecutionPolicy Bypass -File .\release.ps1`. The script asks for the token; it is not shown while you paste it.
+
+## License
+
+[MIT](LICENSE). The bundled Space Grotesk font is licensed under the [SIL Open Font License 1.1](renderer/fonts/OFL.txt).
+
+Tessly is an independent project. It is not affiliated with, endorsed by or sponsored by Anthropic. "Claude" and "Claude Code" are trademarks of Anthropic, used here only to describe what the app works with.
