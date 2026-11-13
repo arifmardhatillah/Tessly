@@ -3,7 +3,7 @@
   "version": "1.0.8",
   "description": "Tessly: AI Token Tracker. Know every token you spend.",
   "main": "src/main.js",
-  "author": "Arif Mardhatillah Asmar",
+  "author": "Arif Mardhatillah",
   "license": "MIT",
   "repository": "github:arifmardhatillah/Tessly",
   "homepage": "https://github.com/arifmardhatillah/Tessly",
