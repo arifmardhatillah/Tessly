@@ -38,10 +38,7 @@ The installer is not code-signed yet, so Windows SmartScreen may show a blue war
 
 ## What it shows
 
-<picture>
-  <source media="(prefers-color-scheme: dark)" srcset="docs/screenshot-dark.png">
-  <img alt="Tessly dashboard: today, this month and this year totals, a daily chart with a 7-day average line, a usage calendar and a per-model list" src="docs/screenshot-light.png">
-</picture>
+<p align="center"><img src="docs/tour.gif" alt="Tessly tour: the Today total rises with a new reply, the chart switches between daily, monthly and yearly, then the app changes to light mode and back." width="100%"></p>
 
 - Tokens today, this month and this year, split into input, output, cache write and cache read.
 - A daily, monthly or yearly chart with a moving-average trend line.

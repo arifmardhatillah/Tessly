@@ -38,10 +38,7 @@ Installer belum ditandatangani (code signing), jadi Windows SmartScreen bisa men
 
 ## Yang ditampilkan
 
-<picture>
-  <source media="(prefers-color-scheme: dark)" srcset="docs/screenshot-dark.png">
-  <img alt="Dashboard Tessly: total hari ini, bulan ini, dan tahun ini, grafik harian dengan garis rata-rata 7 hari, kalender pemakaian, dan daftar per model" src="docs/screenshot-light.png">
-</picture>
+<p align="center"><img src="docs/tour.gif" alt="Tur Tessly: total hari ini naik saat ada balasan baru, grafik berganti harian, bulanan, tahunan, lalu aplikasi berganti ke mode terang dan kembali." width="100%"></p>
 
 - Token hari ini, bulan ini, dan tahun ini, dirinci menjadi input, output, cache tulis, dan cache baca.
 - Grafik harian, bulanan, atau tahunan dengan garis tren rata-rata.
