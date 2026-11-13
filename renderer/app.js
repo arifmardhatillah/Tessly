@@ -9,19 +9,29 @@ try {
 const SVG_NS = 'http://www.w3.org/2000/svg';
 const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-const fmtFull = new Intl.NumberFormat('id-ID');
-const fmtC = new Intl.NumberFormat('id-ID', { notation: 'compact', maximumSignificantDigits: 3 });
-const monthShort = new Intl.DateTimeFormat('id-ID', { month: 'short' });
-const monthLong = new Intl.DateTimeFormat('id-ID', { month: 'long', year: 'numeric' });
-const dayLong = new Intl.DateTimeFormat('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+// Format angka dan tanggal mengikuti bahasa (1,29 jt atau 1.29M); dibuat ulang saat bahasa diganti.
+let fmtFull, fmtC, fmtPct, monthShort, monthLong, dayLong, weekdays;
+function setLocale() {
+  const loc = t('locale');
+  fmtFull = new Intl.NumberFormat(loc);
+  fmtC = new Intl.NumberFormat(loc, { notation: 'compact', maximumSignificantDigits: 3 });
+  fmtPct = new Intl.NumberFormat(loc, { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+  monthShort = new Intl.DateTimeFormat(loc, { month: 'short' });
+  monthLong = new Intl.DateTimeFormat(loc, { month: 'long', year: 'numeric' });
+  dayLong = new Intl.DateTimeFormat(loc, { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+  const wd = new Intl.DateTimeFormat(loc, { weekday: 'short' });
+  weekdays = [...Array(7)].map((_, k) => wd.format(new Date(2024, 0, 1 + k)).replace('.', '')); // 1 Jan 2024 = Senin
+}
+setLocale();
 
+// Nama tiap jenis ada di i18n.js: m.<kunci> (label) dan mu.<kunci> (satuan).
 const METRICS = {
-  io: { label: 'Input + output', unit: 'token input + output', parts: ['i', 'o'], get: (r) => r.i + r.o },
-  total: { label: 'Semua token, termasuk cache', unit: 'token, termasuk cache', parts: ['i', 'o', 'cw', 'cr'], get: (r) => r.i + r.o + r.cw + r.cr },
-  i: { label: 'Input', unit: 'token input', parts: ['i'], get: (r) => r.i },
-  o: { label: 'Output', unit: 'token output', parts: ['o'], get: (r) => r.o },
-  cw: { label: 'Cache tulis', unit: 'token cache tulis', parts: ['cw'], get: (r) => r.cw },
-  cr: { label: 'Cache baca', unit: 'token cache baca', parts: ['cr'], get: (r) => r.cr },
+  io: (r) => r.i + r.o,
+  total: (r) => r.i + r.o + r.cw + r.cr,
+  i: (r) => r.i,
+  o: (r) => r.o,
+  cw: (r) => r.cw,
+  cr: (r) => r.cr,
 };
 
 // Pilihan jenis token diingat per komputer. Bawaan: input + output (token baru, tanpa cache).
@@ -34,7 +44,7 @@ const $ = (id) => document.getElementById(id);
 const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const pad = (n) => String(n).padStart(2, '0');
 const dayKey = (d) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
-const metricOf = (r) => METRICS[state.metric].get(r);
+const metricOf = (r) => METRICS[state.metric](r);
 
 const emptySum = () => ({ i: 0, o: 0, cw: 0, cr: 0, n: 0 });
 function addTo(a, r) { a.i += +r.i || 0; a.o += +r.o || 0; a.cw += +r.cw || 0; a.cr += +r.cr || 0; a.n += +r.n || 0; return a; }
@@ -114,7 +124,7 @@ function render(mode) {
   renderLists();
 }
 
-const BRK = [['Input', 'i'], ['Output', 'o'], ['Cache tulis', 'cw'], ['Cache baca', 'cr']];
+const BRK = ['i', 'o', 'cw', 'cr'];
 const fmtCompact = (v) => fmtC.format(Math.round(v));
 const fmtInt = (v) => fmtFull.format(Math.round(v));
 
@@ -122,15 +132,16 @@ function fillCard(id, when, s, isToday) {
   const card = $(id);
   const brk = card.querySelector('.brk');
   if (!brk.children.length) {
-    brk.innerHTML = BRK.map(([label, k]) => `<div data-k="${k}"><dt>${label}</dt><dd>0</dd></div>`).join('');
+    brk.innerHTML = BRK.map((k) => `<div data-k="${k}"><dt>${t(`m.${k}`)}</dt><dd>0</dd></div>`).join('');
   }
-  card.title = `${when}, ${METRICS[state.metric].unit}`;
+  card.title = `${when}, ${t(`mu.${state.metric}`)}`;
   const num = card.querySelector('.num');
   const v = metricOf(s);
   const grew = num._v !== undefined && v > num._v;
   tween(num, v, fmtCompact, num._v === undefined ? 1100 : 900);
   tween(card.querySelector('.msgs'), s.n, fmtInt);
-  brk.querySelectorAll('dd').forEach((dd, i) => tween(dd, s[BRK[i][1]], fmtCompact));
+  card.querySelector('[data-i18n="replies"]').textContent = t(s.n === 1 ? 'reply' : 'replies');
+  brk.querySelectorAll('dd').forEach((dd, i) => tween(dd, s[BRK[i]], fmtCompact));
   card.classList.remove('loading');
   if (grew && isToday) bump(card);
 }
@@ -140,17 +151,17 @@ function renderKpis() {
   const today = dayKey(now);
   const month = today.slice(0, 7);
   const year = String(now.getFullYear());
-  const t = sumRows(rows('daily').filter((r) => r.d === today));
+  const td = sumRows(rows('daily').filter((r) => r.d === today));
   const m = sumRows(rows('monthly').filter((r) => r.d === month));
   const y = sumRows(rows('monthly').filter((r) => r.d.startsWith(year)));
 
-  const tv = metricOf(t);
+  const tv = metricOf(td);
   if (lastToday && lastToday.metric === state.metric && lastToday.day === today) {
     showDelta(tv - lastToday.v);
   }
   lastToday = { v: tv, metric: state.metric, day: today };
 
-  fillCard('kToday', dayLong.format(now), t, true);
+  fillCard('kToday', dayLong.format(now), td, true);
   fillCard('kMonth', monthLong.format(now), m, false);
   fillCard('kYear', year, y, false);
 }
@@ -170,7 +181,7 @@ function buckets() {
     // 6 hari sebelum jendela, supaya rata-rata 7 hari sudah utuh sejak hari pertama grafik
     const pre = [];
     for (let k = 35; k >= 30; k--) pre.push(map.get(dayKey(new Date(now.getFullYear(), now.getMonth(), now.getDate() - k))) || emptySum());
-    return { out, pre, win: 7, unit: 'hari', title: 'Token per hari', range: '30 hari terakhir' };
+    return { out, pre, win: 7, title: t('chart.day'), range: t('range.day') };
   }
   const map = new Map();
   for (const r of rows('monthly')) groupInto(map, r.d, r);
@@ -183,7 +194,7 @@ function buckets() {
       out.push({ key, s: map.get(key) || emptySum(), tick: monthShort.format(d), title: monthLong.format(d), now: key === cur });
     }
     const pre = [`${state.year - 1}-11`, `${state.year - 1}-12`].map((k) => map.get(k) || emptySum());
-    return { out, pre, win: 3, unit: 'bulan', title: 'Token per bulan', range: `Tahun ${state.year}` };
+    return { out, pre, win: 3, title: t('chart.month'), range: t('range.month', { y: state.year }) };
   }
   const years = new Map();
   for (const [k, s] of map) groupInto(years, k.slice(0, 4), s);
@@ -191,9 +202,9 @@ function buckets() {
   const first = Math.min(now.getFullYear(), ...(ys.length ? ys : [now.getFullYear()]));
   const out = [];
   for (let y = first; y <= now.getFullYear(); y++) {
-    out.push({ key: String(y), s: years.get(String(y)) || emptySum(), tick: String(y), title: `Tahun ${y}`, now: y === now.getFullYear() });
+    out.push({ key: String(y), s: years.get(String(y)) || emptySum(), tick: String(y), title: t('year.title', { y }), now: y === now.getFullYear() });
   }
-  return { out, pre: [], win: 0, unit: 'tahun', title: 'Token per tahun', range: 'Semua tahun' };
+  return { out, pre: [], win: 0, title: t('chart.year'), range: t('range.year') };
 }
 
 function niceMax(v) {
@@ -210,39 +221,30 @@ function svgEl(tag, attrs, parent) {
   return n;
 }
 
-// Urutan tumpukan dari bawah ke atas. Warnanya sama dengan kotak kecil di kartu ringkasan.
-const STACK = ['o', 'i', 'cw', 'cr'];
-const PART_LABEL = { i: 'Input', o: 'Output', cw: 'Cache tulis', cr: 'Cache baca' };
-const PER = { day: 'hari', month: 'bulan', year: 'tahun' };
-
 function renderChartMeta(out, vals, tr) {
-  const counted = METRICS[state.metric].parts;
   const total = vals.reduce((a, v) => a + v, 0);
   const nowIdx = out.findIndex((b) => b.now);
   const n = nowIdx >= 0 ? nowIdx + 1 : out.length; // periode yang belum terjadi tidak ikut dirata-rata
   let top = 0;
   vals.forEach((v, i) => { if (v > vals[top]) top = i; });
   const stat = (k, v, extra = '') => `<div><dt>${k}</dt><dd>${v}${extra ? `<small>${esc(extra)}</small>` : ''}</dd></div>`;
-  const html = stat('Total', fmtC.format(total))
-    + stat(`Rata-rata per ${PER[state.view]}`, fmtC.format(Math.round(total / Math.max(1, n))))
-    + stat('Tertinggi', fmtC.format(vals[top] || 0), total > 0 ? out[top].tick : '')
-    + (tr ? stat(`Rata-rata ${tr.win} ${tr.unit} terakhir`, fmtC.format(Math.round(tr.v)), tr.dir) : '');
+  const html = stat(t('stat.total'), fmtC.format(total))
+    + stat(t('stat.avg', { unit: t(`per.${state.view}`) }), fmtC.format(Math.round(total / Math.max(1, n))))
+    + stat(t('stat.top'), fmtC.format(vals[top] || 0), total > 0 ? out[top].tick : '')
+    + (tr ? stat(t('stat.trend', { n: tr.win, unit: t(`unit.${state.view}`) }), fmtC.format(Math.round(tr.v)), tr.dir ? t(`dir.${tr.dir}`) : '') : '');
   const st = $('chartStats');
   if (st.dataset.html !== html) { st.innerHTML = html; st.dataset.html = html; }
-  const lg = BRK.filter(([, k]) => counted.includes(k)).map(([label, k]) => `<span data-k="${k}"><i></i>${label}</span>`).join('');
-  const le = $('chartLegend');
-  if (le && le.dataset.html !== lg) { le.innerHTML = lg; le.dataset.html = lg; }
 }
 
 let lastBuckets = [];
 let chartKey = '';
 // mode: 'grow' (batang tumbuh dari nol), 'update' (berpindah halus ke nilai baru), 'instant'
 function renderChart(mode = 'update') {
-  const { out, pre, win, unit, title, range } = buckets();
+  const { out, pre, win, title, range } = buckets();
   lastBuckets = out;
   $('chartTitle').textContent = title;
-  $('chartSub').textContent = `${METRICS[state.metric].label}, ${range.toLowerCase()}`
-    + (win ? `. Garis = rata-rata ${win} ${unit} terakhir` : '');
+  $('chartSub').textContent = `${t(`m.${state.metric}`)}, ${range.toLowerCase()}`
+    + (win ? t('chart.trend', { n: win, unit: t(`unit.${state.view}`) }) : '');
   $('rangeLabel').textContent = range;
   $('yearNav').hidden = state.view !== 'month';
   const yl = $('yLabel');
@@ -271,8 +273,8 @@ function renderChart(mode = 'update') {
   let tr = null;
   if (hasTrend) {
     const prev = last - win >= 0 ? ma[last - win] : null;
-    const dir = prev === null ? '' : ma[last] > prev * 1.05 ? 'naik' : ma[last] < prev * 0.95 ? 'turun' : 'stabil';
-    tr = { win, unit, v: ma[last], dir };
+    const dir = prev === null ? '' : ma[last] > prev * 1.05 ? 'up' : ma[last] < prev * 0.95 ? 'down' : 'flat';
+    tr = { win, v: ma[last], dir };
   }
   renderChartMeta(out, vals, tr);
   const max = niceMax(Math.max(0, ...vals));
@@ -323,7 +325,7 @@ function renderChart(mode = 'update') {
     el.append(svg);
     void el.offsetWidth;
   }
-  svg.setAttribute('aria-label', `${title}, ${METRICS[state.metric].label}`);
+  svg.setAttribute('aria-label', `${title}, ${t(`m.${state.metric}`)}`);
 
   // garis bantu dan label sumbu Y mengikuti skala terbaru
   const grid = svg.querySelector('.grid');
@@ -372,7 +374,7 @@ function renderChart(mode = 'update') {
     r.style.y = `${base - h}px`;
     r.style.height = `${h}px`;
   });
-  svg.querySelector('.empty').textContent = vals.every((v) => v === 0) ? 'Belum ada pemakaian pada periode ini' : '';
+  svg.querySelector('.empty').textContent = vals.every((v) => v === 0) ? t('chart.empty') : '';
   renderHeat(out, vals, nowIdx);
   if (tipIdx >= 0 && lastBuckets[tipIdx]) fillTip(tipIdx, lastBuckets[tipIdx].s); // angka di tooltip ikut diperbarui
 }
@@ -387,16 +389,16 @@ function renderHeat(out, vals, nowIdx) {
   const el = $('heat');
   if (state.view === 'year' || out.length < 3) { el.hidden = true; return; }
   el.hidden = false;
-  const key = `${state.view}|${state.year}|${out[0].key}`;
+  const key = `${state.view}|${state.year}|${out[0].key}|${LANG}`;
   if (el.dataset.key !== key) {
     let html = '';
     if (state.view === 'day') {
-      html += ['Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab', 'Min'].map((w) => `<span class="wd" aria-hidden="true">${w}</span>`).join('');
+      html += weekdays.map((w) => `<span class="wd" aria-hidden="true">${esc(w)}</span>`).join('');
       const first = new Date(`${out[0].key}T00:00`);
       html += '<span aria-hidden="true"></span>'.repeat((first.getDay() + 6) % 7);
     }
     html += out.map((b, i) => `<div class="hc${b.now ? ' now' : ''}" role="listitem" data-i="${i}"><span>${esc(b.tick)}</span><b></b></div>`).join('');
-    html += '<p class="heat-lg" aria-hidden="true">Sedikit <i data-l="0"></i><i data-l="1"></i><i data-l="2"></i><i data-l="3"></i><i data-l="4"></i> Banyak</p>';
+    html += `<p class="heat-lg" aria-hidden="true">${t('heat.less')} <i data-l="0"></i><i data-l="1"></i><i data-l="2"></i><i data-l="3"></i><i data-l="4"></i> ${t('heat.more')}</p>`;
     el.className = `heat ${state.view}`;
     el.innerHTML = html;
     el.dataset.key = key;
@@ -408,7 +410,7 @@ function renderHeat(out, vals, nowIdx) {
     c.dataset.l = heatLevel(v, max);
     c.querySelector('b').textContent = v > 0 ? fmtC.format(v) : '';
     c.classList.toggle('future', nowIdx >= 0 && i > nowIdx);
-    c.setAttribute('aria-label', `${out[i].title}: ${fmtFull.format(v)} token`);
+    c.setAttribute('aria-label', t('heat.cell', { t: out[i].title, n: fmtFull.format(v) }));
   });
 }
 
@@ -431,12 +433,9 @@ function fillTip(i, s) {
   const b = lastBuckets[i];
   const tip = $('tip');
   tip.innerHTML = `<b>${esc(b.title)}</b>
-    <div class="tr main"><span>${esc(METRICS[state.metric].label)}</span><span>${fmtFull.format(metricOf(s))}</span></div>
-    <div class="tr"><span>Input</span><span>${fmtFull.format(s.i)}</span></div>
-    <div class="tr"><span>Output</span><span>${fmtFull.format(s.o)}</span></div>
-    <div class="tr"><span>Cache tulis</span><span>${fmtFull.format(s.cw)}</span></div>
-    <div class="tr"><span>Cache baca</span><span>${fmtFull.format(s.cr)}</span></div>
-    <div class="tr"><span>Balasan</span><span>${fmtFull.format(s.n)}</span></div>`;
+    <div class="tr main"><span>${esc(t(`m.${state.metric}`))}</span><span>${fmtFull.format(metricOf(s))}</span></div>
+    ${BRK.map((k) => `<div class="tr"><span>${t(`m.${k}`)}</span><span>${fmtFull.format(s[k])}</span></div>`).join('')}
+    <div class="tr"><span>${t('tip.replies')}</span><span>${fmtFull.format(s.n)}</span></div>`;
   tip.classList.add('show');
   const chart = $('chart');
   chart.classList.add('hovering');
@@ -490,14 +489,14 @@ function renderLists() {
   fillList($('listModels'), mos.length ? mos.map(({ mo, s }) => {
     const v = metricOf(s);
     const pct = (v / total) * 100;
-    const pctTxt = pct > 0 && pct < 0.1 ? '<0,1%' : `${pct.toFixed(1).replace('.', ',')}%`;
+    const pctTxt = pct > 0 && pct < 0.1 ? `<${fmtPct.format(0.1)}%` : `${fmtPct.format(pct)}%`;
     return `<div class="row" data-k="${esc(mo)}">
       <span class="name"><span>${esc(mo)}</span></span>
       <span class="val" title="${fmtFull.format(v)}">${fmtC.format(v)}</span>
-      <span class="meta">${fmtFull.format(s.n)} balasan, ${pctTxt}</span>
+      <span class="meta">${esc(t(s.n === 1 ? 'list.meta1' : 'list.meta', { n: fmtFull.format(s.n), pct: pctTxt }))}</span>
       ${trackHtml(pct.toFixed(1), s)}
     </div>`;
-  }).join('') : '<p class="empty-list">Belum ada pemakaian pada periode ini.</p>');
+  }).join('') : `<p class="empty-list">${t('list.empty')}</p>`);
 }
 
 // ---------- kontrol periode ----------
@@ -515,7 +514,8 @@ async function openSettings() {
   const s = await window.api.getSettings();
   const f = $('frm');
   f.autostart.checked = s.autostart;
-  $('devInfo').textContent = `Komputer ini: ${s.hostname}, pengguna ${s.user}. Log dibaca dari ${s.logFolders.join(', ')}`;
+  $('devInfo').textContent = t('dlg.info', { host: s.hostname, user: s.user, dirs: s.logFolders.join(', ') });
+  $('fLang').value = LANG;
   $('verNow').textContent = s.version;
   $('verMsg').textContent = '';
   $('dlg').showModal();
@@ -558,6 +558,25 @@ $('btnTheme').addEventListener('click', () => {
   try { localStorage.setItem('tessly.theme', root.dataset.theme); } catch { /* berlaku sampai aplikasi ditutup */ }
 });
 $('btnCancel').addEventListener('click', () => $('dlg').close());
+$('fLang').addEventListener('change', (e) => setLang(e.target.value));
+
+function setLang(l) {
+  if (!DICT[l] || l === LANG) return;
+  LANG = l;
+  try { localStorage.setItem('tessly.lang', l); } catch { /* berlaku sampai aplikasi ditutup */ }
+  window.api.setLang(l); // menu tray dan notifikasi ikut berganti
+  setLocale();
+  applyStaticText();
+  // teks yang sudah tergambar dibuat ulang dalam bahasa baru
+  document.querySelectorAll('.kpi .brk dt').forEach((n, i) => { n.textContent = t(`m.${BRK[i % BRK.length]}`); });
+  chartKey = '';
+  $('chartStats').dataset.html = '';
+  $('listModels').dataset.html = '';
+  if (state.data) render('instant');
+  moveSegIndicator(false);
+  renderUpd(upd);
+  if ($('dlg').open) openSettings();
+}
 $('frm').addEventListener('submit', async (e) => {
   e.preventDefault();
   $('btnSave').disabled = true;
@@ -598,28 +617,28 @@ function renderUpd(u) {
   notes.hidden = true;
 
   if (u.status === 'available') {
-    $('updTitle').textContent = `Versi ${u.version} tersedia`;
-    $('updText').textContent = `Anda memakai versi ${u.current}.`;
+    $('updTitle').textContent = t('upd.avail', { v: u.version });
+    $('updText').textContent = t('upd.using', { v: u.current });
     if (u.notes) { notes.textContent = u.notes; notes.hidden = false; }
-    go.textContent = 'Unduh dan pasang';
-    later.textContent = 'Nanti';
+    go.textContent = t('upd.go');
+    later.textContent = t('upd.later');
   } else if (u.status === 'downloading') {
-    $('updTitle').textContent = `Mengunduh versi ${u.version}`;
-    $('updText').textContent = `${u.percent}% selesai. Anda tetap bisa memakai aplikasi.`;
+    $('updTitle').textContent = t('upd.dl', { v: u.version });
+    $('updText').textContent = t('upd.dlText', { p: u.percent });
     bar.hidden = false;
     bar.firstElementChild.style.width = `${u.percent}%`;
     go.hidden = true;
-    later.textContent = 'Sembunyikan';
+    later.textContent = t('upd.hide');
   } else if (u.status === 'ready') {
-    $('updTitle').textContent = `Versi ${u.version} siap dipasang`;
-    $('updText').textContent = 'Tessly akan tertutup sebentar, lalu terbuka lagi dengan versi baru.';
-    go.textContent = 'Pasang sekarang';
-    later.textContent = 'Saat keluar saja';
+    $('updTitle').textContent = t('upd.ready', { v: u.version });
+    $('updText').textContent = t('upd.readyText');
+    go.textContent = t('upd.install');
+    later.textContent = t('upd.onQuit');
   } else {
-    $('updTitle').textContent = 'Unduhan update gagal';
-    $('updText').textContent = u.error || 'Periksa koneksi internet, lalu coba lagi.';
-    go.textContent = 'Coba lagi';
-    later.textContent = 'Tutup';
+    $('updTitle').textContent = t('upd.fail');
+    $('updText').textContent = u.error || t('upd.failText');
+    go.textContent = t('upd.retry');
+    later.textContent = t('close');
   }
   if (box.hidden) { box.classList.remove('out'); box.hidden = false; }
 }
@@ -647,13 +666,13 @@ function renderVerMsg(u) {
   const m = $('verMsg');
   $('verNow').textContent = u.current || '';
   const map = {
-    checking: ['Memeriksa…', ''],
-    latest: ['Sudah versi terbaru', 'ok'],
-    available: [`Versi ${u.version} tersedia`, 'ok'],
-    downloading: [`Mengunduh ${u.percent}%`, ''],
-    ready: [`Versi ${u.version} siap dipasang`, 'ok'],
-    dev: ['Mode pengembangan: cek update hanya berjalan di aplikasi terpasang', ''],
-    error: [u.error ? `Gagal memeriksa: ${u.error}` : 'Gagal memeriksa update', 'err'],
+    checking: [t('ver.checking'), ''],
+    latest: [t('ver.latest'), 'ok'],
+    available: [t('upd.avail', { v: u.version }), 'ok'],
+    downloading: [t('ver.dl', { p: u.percent }), ''],
+    ready: [t('upd.ready', { v: u.version }), 'ok'],
+    dev: [t('ver.dev'), ''],
+    error: [u.error ? t('ver.err', { e: u.error }) : t('ver.errPlain'), 'err'],
   };
   const r = map[u.status];
   if (!r) return;
@@ -687,5 +706,7 @@ document.addEventListener('visibilitychange', () => { if (!document.hidden && st
 setInterval(() => { if (!document.hidden && state.data && dayKey(new Date()) !== renderedDay) render('update'); }, 60_000);
 
 document.fonts.ready.then(() => moveSegIndicator(false));
+applyStaticText();
+window.api.setLang(LANG);
 moveSegIndicator(false);
 window.api.getData().then(receive);

@@ -7,7 +7,7 @@ const CHECK_EVERY_MS = 4 * 60 * 60 * 1000;
 const FIRST_CHECK_MS = process.env.TM_FAKE_UPDATE ? 500 : 15 * 1000;
 
 const state = { status: 'idle', version: null, notes: '', percent: 0, error: null, current: app.getVersion() };
-let hooks = { send: () => {}, isWindowVisible: () => false, showWindow: () => {}, refreshTray: () => {}, beforeQuit: () => {} };
+let hooks = { send: () => {}, isWindowVisible: () => false, showWindow: () => {}, refreshTray: () => {}, beforeQuit: () => {}, text: (k) => k };
 let notifiedVersion = null;
 
 function plainNotes(n) {
@@ -28,8 +28,8 @@ function notifyDesktop() {
   if (notifiedVersion === state.version || hooks.isWindowVisible() || !Notification.isSupported()) return;
   notifiedVersion = state.version;
   const n = new Notification({
-    title: `Tessly ${state.version} tersedia`,
-    body: 'Klik untuk membuka Tessly dan memasang versi terbaru.',
+    title: hooks.text('notifyTitle', { v: state.version }),
+    body: hooks.text('notifyBody'),
   });
   n.on('click', () => hooks.showWindow());
   n.show();

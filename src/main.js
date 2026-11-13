@@ -37,7 +37,7 @@ function loadConfig() {
   } catch {
     /* belum ada pengaturan: pakai bawaan */
   }
-  return { autostart: raw.autostart !== false };
+  return { autostart: raw.autostart !== false, lang: raw.lang === 'en' ? 'en' : 'id' };
 }
 
 function saveConfig(c) {
@@ -49,6 +49,21 @@ function applyAutostart() {
   if (!app.isPackaged) return; // saat pengembangan jangan daftarkan electron.exe
   app.setLoginItemSettings({ openAtLogin: cfg.autostart, args: ['--hidden'] });
 }
+
+// Teks menu tray dan tooltip. Bahasanya mengikuti pilihan di dashboard (disimpan di config.json).
+const TEXT = {
+  id: {
+    locale: 'id-ID', open: 'Buka Tessly', quit: 'Keluar', today: 'Tessly: {n} token hari ini',
+    download: 'Unduh update {v}', downloading: 'Mengunduh update {p}%', install: 'Pasang update {v} dan mulai ulang',
+    notifyTitle: 'Tessly {v} tersedia', notifyBody: 'Klik untuk membuka Tessly dan memasang versi terbaru.',
+  },
+  en: {
+    locale: 'en-US', open: 'Open Tessly', quit: 'Quit', today: 'Tessly: {n} tokens today',
+    download: 'Download update {v}', downloading: 'Downloading update {p}%', install: 'Install update {v} and restart',
+    notifyTitle: 'Tessly {v} is available', notifyBody: 'Click to open Tessly and install the latest version.',
+  },
+};
+const tr = (key, vars = {}) => TEXT[cfg.lang][key].replace(/\{(\w+)\}/g, (_, k) => vars[k] ?? '');
 
 // ---------- data untuk dashboard ----------
 function isoDay(t) {
@@ -151,6 +166,14 @@ ipcMain.handle('save-settings', (_e, s) => {
   return true;
 });
 
+ipcMain.handle('set-lang', (_e, l) => {
+  if (!TEXT[l] || l === cfg.lang) return;
+  cfg = { ...cfg, lang: l };
+  saveConfig(cfg);
+  buildTrayMenu();
+  updateTrayTooltip();
+});
+
 ipcMain.handle('update-get', () => updater.getState());
 ipcMain.handle('update-check', () => updater.check(true));
 ipcMain.handle('update-download', () => updater.download());
@@ -217,28 +240,28 @@ function showWindow() {
   }
 }
 
-const trayFmt = new Intl.NumberFormat('id-ID', { notation: 'compact', maximumFractionDigits: 1 });
 function updateTrayTooltip() {
   if (!tray) return;
   const today = isoDay(Date.now());
   const t = snapshot().daily.filter((r) => r.d === today).reduce((a, r) => a + r.i + r.o, 0); // sama dengan angka utama di dashboard
-  tray.setToolTip(`Tessly: ${trayFmt.format(t)} token hari ini`);
+  const n = new Intl.NumberFormat(tr('locale'), { notation: 'compact', maximumFractionDigits: 1 }).format(t);
+  tray.setToolTip(tr('today', { n }));
 }
 
 function buildTrayMenu() {
   if (!tray) return;
   const u = updater.getState();
   const updItems = [];
-  if (u.status === 'available') updItems.push({ label: `Unduh update ${u.version}`, click: () => { showWindow(); updater.download(); } });
-  if (u.status === 'downloading') updItems.push({ label: `Mengunduh update ${u.percent}%`, enabled: false });
-  if (u.status === 'ready') updItems.push({ label: `Pasang update ${u.version} dan mulai ulang`, click: () => updater.install() });
+  if (u.status === 'available') updItems.push({ label: tr('download', { v: u.version }), click: () => { showWindow(); updater.download(); } });
+  if (u.status === 'downloading') updItems.push({ label: tr('downloading', { p: u.percent }), enabled: false });
+  if (u.status === 'ready') updItems.push({ label: tr('install', { v: u.version }), click: () => updater.install() });
   tray.setContextMenu(
     Menu.buildFromTemplate([
-      { label: 'Buka Tessly', click: showWindow },
+      { label: tr('open'), click: showWindow },
       ...(updItems.length ? [{ type: 'separator' }, ...updItems] : []),
       { type: 'separator' },
       {
-        label: 'Keluar',
+        label: tr('quit'),
         click: () => {
           quitting = true;
           app.quit();
@@ -267,6 +290,7 @@ app.whenReady().then(() => {
     isWindowVisible: () => Boolean(win && !win.isDestroyed() && win.isVisible()),
     showWindow,
     refreshTray: buildTrayMenu,
+    text: tr,
     beforeQuit: () => { quitting = true; },
   });
   watchLogs();

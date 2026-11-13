@@ -12,44 +12,44 @@
   <header class="bar">
     <div class="brand">
       <p class="wordmark">tess<b>ly</b></p>
-      <p class="bar-sub">Claude Code di komputer ini</p>
+      <p class="bar-sub" data-i18n="app.sub">Claude Code di komputer ini</p>
     </div>
     <div class="bar-actions">
-      <select id="fMetric" aria-label="Jenis token yang dihitung">
-        <option value="io">Input + output</option>
-        <option value="total">Semua, termasuk cache</option>
-        <option value="i">Input saja</option>
-        <option value="o">Output saja</option>
-        <option value="cw">Cache tulis</option>
-        <option value="cr">Cache baca</option>
+      <select id="fMetric" aria-label="Jenis token yang dihitung" data-i18n-aria="metric.aria">
+        <option value="io" data-i18n="opt.io">Input + output</option>
+        <option value="total" data-i18n="opt.total">Semua, termasuk cache</option>
+        <option value="i" data-i18n="opt.i">Input saja</option>
+        <option value="o" data-i18n="opt.o">Output saja</option>
+        <option value="cw" data-i18n="opt.cw">Cache tulis</option>
+        <option value="cr" data-i18n="opt.cr">Cache baca</option>
       </select>
-      <button id="btnTheme" class="btn icon" aria-label="Ganti mode terang atau gelap" title="Ganti mode terang atau gelap">
+      <button id="btnTheme" class="btn icon" data-i18n-aria="theme.aria" aria-label="Ganti mode terang atau gelap" title="Ganti mode terang atau gelap">
         <svg class="ico" viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="7"/><path d="M10 3a7 7 0 0 0 0 14z" fill="currentColor" stroke="none"/></svg>
       </button>
       <button id="btnSettings" class="btn">
         <svg class="ico" viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="2.6"/><path d="M10 1.8v2.4M10 15.8v2.4M1.8 10h2.4M15.8 10h2.4M4.2 4.2l1.7 1.7M14.1 14.1l1.7 1.7M4.2 15.8l1.7-1.7M14.1 5.9l1.7-1.7"/></svg>
-        Pengaturan
+        <span data-i18n="settings">Pengaturan</span>
       </button>
     </div>
   </header>
 
   <main>
-    <h1 class="vh">Pemakaian token</h1>
+    <h1 class="vh" data-i18n="page.title">Pemakaian token</h1>
 
-    <section class="kpis" aria-label="Ringkasan pemakaian">
+    <section class="kpis" aria-label="Ringkasan pemakaian" data-i18n-aria="kpis.aria">
       <article class="kpi loading" id="kToday">
-        <h2 class="lbl">Hari ini</h2>
-        <div class="big"><span class="num">0</span><span class="unit"><b class="msgs">0</b> balasan</span><span class="delta-layer" aria-hidden="true"></span></div>
+        <h2 class="lbl" data-i18n="today">Hari ini</h2>
+        <div class="big"><span class="num">0</span><span class="unit"><b class="msgs">0</b> <span data-i18n="replies">balasan</span></span><span class="delta-layer" aria-hidden="true"></span></div>
         <dl class="brk"></dl>
       </article>
       <article class="kpi loading" id="kMonth">
-        <h2 class="lbl">Bulan ini</h2>
-        <div class="big"><span class="num">0</span><span class="unit"><b class="msgs">0</b> balasan</span></div>
+        <h2 class="lbl" data-i18n="month">Bulan ini</h2>
+        <div class="big"><span class="num">0</span><span class="unit"><b class="msgs">0</b> <span data-i18n="replies">balasan</span></span></div>
         <dl class="brk"></dl>
       </article>
       <article class="kpi loading" id="kYear">
-        <h2 class="lbl">Tahun ini</h2>
-        <div class="big"><span class="num">0</span><span class="unit"><b class="msgs">0</b> balasan</span></div>
+        <h2 class="lbl" data-i18n="year">Tahun ini</h2>
+        <div class="big"><span class="num">0</span><span class="unit"><b class="msgs">0</b> <span data-i18n="replies">balasan</span></span></div>
         <dl class="brk"></dl>
       </article>
     </section>
@@ -63,34 +63,34 @@
           </div>
           <div class="chart-ctl">
             <div class="year-nav" id="yearNav" hidden>
-            <button class="icon-btn" id="yPrev" aria-label="Tahun sebelumnya">
+            <button class="icon-btn" id="yPrev" aria-label="Tahun sebelumnya" data-i18n-aria="year.prev">
               <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M12.5 4.5 7 10l5.5 5.5"/></svg></button>
             <span id="yLabel"></span>
-            <button class="icon-btn" id="yNext" aria-label="Tahun berikutnya">
+            <button class="icon-btn" id="yNext" aria-label="Tahun berikutnya" data-i18n-aria="year.next">
               <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M7.5 4.5 13 10l-5.5 5.5"/></svg></button>
           </div>
-            <div class="seg" role="tablist" aria-label="Periode grafik">
+            <div class="seg" role="tablist" aria-label="Periode grafik" data-i18n-aria="seg.aria">
               <span class="seg-ind" aria-hidden="true"></span>
-              <button role="tab" data-view="day" aria-selected="true">Harian</button>
-              <button role="tab" data-view="month" aria-selected="false">Bulanan</button>
-              <button role="tab" data-view="year" aria-selected="false">Tahunan</button>
+              <button role="tab" data-view="day" aria-selected="true" data-i18n="tab.day">Harian</button>
+              <button role="tab" data-view="month" aria-selected="false" data-i18n="tab.month">Bulanan</button>
+              <button role="tab" data-view="year" aria-selected="false" data-i18n="tab.year">Tahunan</button>
             </div>
           </div>
         </div>
         <dl class="stats" id="chartStats"></dl>
         <div class="chart" id="chart"></div>
-        <div class="heat" id="heat" role="list" aria-label="Kalender warna pemakaian"></div>
+        <div class="heat" id="heat" role="list" aria-label="Kalender warna pemakaian" data-i18n-aria="heat.aria"></div>
         <div class="tip" id="tip"></div>
       </section>
 
       <section class="card models" aria-labelledby="hModel">
-        <div class="sec-head"><h2 id="hModel">Model</h2><span class="sub" id="rangeLabel"></span></div>
+        <div class="sec-head"><h2 id="hModel" data-i18n="models">Model</h2><span class="sub" id="rangeLabel"></span></div>
         <div id="listModels" class="rows"></div>
       </section>
     </div>
 
     <footer class="foot">
-      <p>Input + output = token baru. Cache = isi percakapan yang dikirim ulang tiap balasan. Pemakaian claude.ai tidak ikut dihitung. rb = ribu, jt = juta, M = miliar.</p>
+      <p data-i18n="foot">Input + output = token baru. Cache = isi percakapan yang dikirim ulang tiap balasan. Pemakaian claude.ai tidak ikut dihitung. rb = ribu, jt = juta, M = miliar.</p>
       <p id="appVer"></p>
     </footer>
   </main>
@@ -102,7 +102,7 @@
         <h3 id="updTitle"></h3>
         <p id="updText"></p>
       </div>
-      <button class="upd-x" id="updClose" aria-label="Tutup">
+      <button class="upd-x" id="updClose" aria-label="Tutup" data-i18n-aria="close">
         <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M5 5l10 10M15 5 5 15"/></svg></button>
     </div>
     <div class="upd-notes" id="updNotes" hidden></div>
@@ -115,22 +115,25 @@
 
   <dialog id="dlg">
     <form method="dialog" id="frm">
-      <h2>Pengaturan</h2>
+      <h2 data-i18n="settings">Pengaturan</h2>
       <p class="sub" id="devInfo"></p>
-      <label class="check"><input type="checkbox" name="autostart"> Jalankan otomatis saat Windows menyala</label>
+      <label class="lang-row"><span data-i18n="dlg.lang">Bahasa</span>
+        <select id="fLang"><option value="id">Bahasa Indonesia</option><option value="en">English</option></select></label>
+      <label class="check"><input type="checkbox" name="autostart"> <span data-i18n="dlg.autostart">Jalankan otomatis saat Windows menyala</span></label>
       <div class="ver-row">
-        <span>Versi aplikasi <b id="verNow"></b></span>
+        <span><span data-i18n="dlg.version">Versi aplikasi</span> <b id="verNow"></b></span>
         <span id="verMsg" class="sub" role="status"></span>
-        <button type="button" class="btn" id="btnCheckUpd">Cek update</button>
+        <button type="button" class="btn" id="btnCheckUpd" data-i18n="dlg.check">Cek update</button>
       </div>
       <div class="dlg-actions">
         <span class="grow"></span>
-        <button type="button" class="btn ghost" id="btnCancel">Batal</button>
-        <button type="submit" class="btn primary" id="btnSave">Simpan</button>
+        <button type="button" class="btn ghost" id="btnCancel" data-i18n="dlg.cancel">Batal</button>
+        <button type="submit" class="btn primary" id="btnSave" data-i18n="dlg.save">Simpan</button>
       </div>
     </form>
   </dialog>
 
+  <script src="i18n.js"></script>
   <script src="app.js"></script>
 </body>
 </html>

@@ -5,6 +5,7 @@ contextBridge.exposeInMainWorld('api', {
   onData: (cb) => ipcRenderer.on('data', (_e, d) => cb(d)), // dikirim begitu log berubah
   getSettings: () => ipcRenderer.invoke('get-settings'),
   saveSettings: (s) => ipcRenderer.invoke('save-settings', s),
+  setLang: (l) => ipcRenderer.invoke('set-lang', l),
   update: {
     get: () => ipcRenderer.invoke('update-get'),
     check: () => ipcRenderer.invoke('update-check'),

@@ -18,6 +18,8 @@ Aplikasi desktop Windows untuk memantau pemakaian token **Claude Code** di kompu
 
 Jalankan `Tessly Setup x.y.z.exe` dari folder `dist`. Pemasangan per pengguna, tanpa hak admin.
 
+Tampilan tersedia dalam bahasa Indonesia dan Inggris (Pengaturan > Bahasa); menu tray dan notifikasi ikut berganti.
+
 Aplikasi berjalan otomatis setiap Windows menyala (bisa dimatikan di Pengaturan). Menutup jendela hanya menyembunyikannya ke tray. Untuk benar-benar menghentikan aplikasi, klik kanan ikon tray lalu pilih **Keluar**.
 
 ## Update aplikasi
@@ -67,4 +69,4 @@ Struktur:
 - `src/history.js`: riwayat total per tanggal dan model di `history.json`
 - `src/main.js`: tray, jendela, pemantauan log, pengaturan
 - `src/updater.js`: cek dan pasang update dari GitHub Releases
-- `renderer/`: dashboard (HTML/CSS/JS biasa, grafik SVG)
+- `renderer/`: dashboard (HTML/CSS/JS biasa, grafik SVG); semua teks antarmuka ada di `renderer/i18n.js`

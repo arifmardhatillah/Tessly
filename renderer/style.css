@@ -246,6 +246,7 @@ dialog .sub { margin-bottom: 16px; }
 dialog .btn { background: var(--s2); }
 dialog .btn:hover { background: var(--s3); }
 dialog .btn.primary { background: var(--grad); }
+.lang-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; font-size: 13px; margin: 0 0 12px; }
 .check { display: flex; gap: 8px; align-items: center; font-size: 13px; margin: 2px 0 6px; cursor: pointer; }
 .check input { width: 15px; height: 15px; padding: 0; accent-color: var(--a2); cursor: pointer; }
 .dlg-actions { display: flex; gap: 8px; margin-top: 10px; }
