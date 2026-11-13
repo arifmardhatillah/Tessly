@@ -1,6 +1,6 @@
-<h1 align="center">
+<p align="center">
   <img src="docs/banner.gif" alt="Tessly: Know every token you spend. Total hari ini naik setiap kali Claude Code selesai membalas." width="100%">
-</h1>
+</p>
 
 <p align="center">
   <a href="https://github.com/arifmardhatillah/Tessly/releases/latest"><img alt="Rilis terbaru" src="https://img.shields.io/github/v/release/arifmardhatillah/Tessly?color=ff6b5c&label=release"></a>
@@ -10,7 +10,7 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/arifmardhatillah/Tessly/releases/latest"><img alt="Unduh Tessly" src="https://img.shields.io/badge/Unduh-Tessly-ff6b5c?style=for-the-badge"></a>
+  <a href="https://github.com/arifmardhatillah/Tessly/releases/latest"><img alt="Unduh Tessly untuk Windows" src="docs/unduh.png" width="280"></a>
 </p>
 
 <p align="center"><a href="README.md">English</a> · <b>Bahasa Indonesia</b></p>
