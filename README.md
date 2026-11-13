@@ -70,4 +70,4 @@ Struktur:
 - `src/history.js`: riwayat total per tanggal dan model di `history.json`
 - `src/main.js`: tray, jendela, pemantauan log, pengaturan
 - `src/updater.js`: cek dan pasang update dari GitHub Releases
-- `renderer/`: dashboard (HTML/CSS/JS biasa, grafik SVG); semua teks antarmuka ada di `renderer/i18n.js`
+- `renderer/`: dashboard (HTML/CSS/JS biasa, grafik SVG); semua teks antarmuka ada di `renderer/i18n.js`, dropdown di `renderer/dropdown.js`

@@ -100,6 +100,54 @@ select:hover, input:hover { background-color: var(--s2); }
 select:focus-visible, input:focus-visible { outline: 2px solid var(--a1); outline-offset: 0; }
 select option { background: var(--s2); color: var(--ink); }
 
+/* ---------- dropdown (pengganti daftar <select> bawaan Windows) ---------- */
+.dd { position: relative; display: inline-block; }
+.dd.open { z-index: 40; }
+.dd > select { display: none; }
+.dd-btn {
+  display: flex; align-items: center; gap: 10px; width: 100%;
+  font: inherit; font-size: 13px; color: var(--ink-2); cursor: pointer; text-align: left;
+  background: var(--s1); border: 0; box-shadow: inset 0 0 0 1px var(--edge); border-radius: 12px; padding: 9px 12px 9px 14px;
+  transition: background-color .15s, color .15s;
+}
+.dd-btn:hover, .dd.open .dd-btn { background: var(--s2); color: var(--ink); }
+.dd-btn:active { transform: scale(.98); }
+.dd-btn:focus-visible { outline: 2px solid var(--a1); outline-offset: 0; }
+/* semua pilihan ditumpuk di satu sel: lebar tombol = pilihan terpanjang */
+.dd-val { display: grid; flex: 1; }
+.dd-val span { grid-area: 1 / 1; white-space: nowrap; visibility: hidden; }
+.dd-val span.on { visibility: visible; }
+.dd-chev { width: 12px; height: 12px; flex: none; fill: none; stroke: var(--muted); stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; transition: transform .3s var(--ease); }
+.dd.open .dd-chev { transform: rotate(180deg); }
+
+.dd-list {
+  position: absolute; top: calc(100% + 6px); right: 0; min-width: 100%; margin: 0; padding: 5px; list-style: none;
+  background: var(--s2); border-radius: 14px; box-shadow: 0 16px 40px rgba(0, 0, 0, .28), inset 0 0 0 1px var(--edge);
+  max-height: 300px; overflow-y: auto; outline: none;
+  transform-origin: top right; opacity: 0; visibility: hidden; transform: translateY(-6px) scale(.96);
+  transition: opacity .14s ease, transform .18s var(--ease), visibility 0s .18s;
+}
+.dd.open .dd-list { opacity: 1; visibility: visible; transform: none; transition: opacity .16s ease, transform .3s var(--ease), visibility 0s; }
+.dd-list li {
+  display: flex; align-items: center; justify-content: space-between; gap: 18px;
+  padding: 8px 10px 8px 12px; border-radius: 9px; font-size: 13px; color: var(--ink-2); white-space: nowrap; cursor: pointer;
+  transition: background-color .12s, color .12s;
+}
+.dd.open .dd-list li { animation: ddItem .32s var(--ease) both; animation-delay: calc(var(--i) * 22ms + 30ms); }
+@keyframes ddItem { from { opacity: 0; transform: translateY(-4px); } }
+.dd-list li.act { background: var(--s3); color: var(--ink); }
+.dd-list li[aria-selected="true"] { color: var(--ink); font-weight: 600; }
+.dd-check { width: 14px; height: 14px; flex: none; fill: none; stroke: var(--a2); stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; opacity: 0; transform: scale(.6); transition: opacity .15s, transform .25s var(--ease); }
+.dd-list li[aria-selected="true"] .dd-check { opacity: 1; transform: none; }
+dialog .dd-btn { background: var(--s2); }
+dialog .dd-btn:hover, dialog .dd.open .dd-btn { background: var(--s3); }
+dialog .dd-list { background: var(--s3); }
+dialog .dd-list li.act { background: color-mix(in srgb, var(--ink) 9%, var(--s3)); }
+@media (prefers-reduced-motion: reduce) {
+  .dd-list, .dd.open .dd-list, .dd-chev { transition: none; }
+  .dd.open .dd-list li { animation: none; }
+}
+
 @keyframes drop { from { opacity: 0; transform: translateY(-6px); } }
 
 main { max-width: 1260px; margin: 0 auto; padding: 18px 28px 32px; }

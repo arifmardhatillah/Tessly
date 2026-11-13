@@ -1,7 +1,5 @@
-Update bisa diunduh dan dipasang langsung dari Pengaturan, statusnya tampil di bawah nomor versi.
-Saat memasang, Tessly memberi tahu dulu, lalu jendela installer menampilkan progresnya.
-Kartu Model kini sejajar dengan kartu Tahun ini.
+Menu pilihan (jenis token dan bahasa) tampil baru dengan animasi saat dibuka, dan bisa dipakai dengan keyboard.
+Sudah termasuk 1.0.7: update langsung dari Pengaturan dan progres saat memasang.
 
-Updates can be downloaded and installed right from Settings, with the status shown under the version number.
-While installing, Tessly lets you know first and the installer window shows its progress.
-The Models card now lines up with the This year card.
+Dropdown menus (token type and language) have a new look with an opening animation, and work with the keyboard.
+Includes 1.0.7: updates right from Settings and install progress.

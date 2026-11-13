@@ -516,6 +516,7 @@ async function openSettings() {
   f.autostart.checked = s.autostart;
   $('devInfo').textContent = t('dlg.info', { host: s.hostname, user: s.user, dirs: s.logFolders.join(', ') });
   $('fLang').value = LANG;
+  syncDropdowns();
   $('verNow').textContent = s.version;
   // update yang sudah ketahuan langsung tampil di sini; hasil cek lama (sudah terbaru, gagal) tidak
   renderVerMsg(updPending(upd) || upd.status === 'installing' ? upd : { status: 'idle', current: s.version });
@@ -532,6 +533,7 @@ document.querySelectorAll('.seg button').forEach((b) => b.addEventListener('clic
   render('grow');
 }));
 $('fMetric').value = state.metric;
+syncDropdowns();
 $('fMetric').addEventListener('change', (e) => {
   state.metric = e.target.value;
   try { localStorage.setItem('tessly.metric', state.metric); } catch { /* tanpa penyimpanan: pilihan berlaku sampai aplikasi ditutup */ }
@@ -568,6 +570,7 @@ function setLang(l) {
   window.api.setLang(l); // menu tray dan notifikasi ikut berganti
   setLocale();
   applyStaticText();
+  syncDropdowns();
   // teks yang sudah tergambar dibuat ulang dalam bahasa baru
   document.querySelectorAll('.kpi .brk dt').forEach((n, i) => { n.textContent = t(`m.${BRK[i % BRK.length]}`); });
   chartKey = '';
@@ -745,6 +748,7 @@ setInterval(() => { if (!document.hidden && state.data && dayKey(new Date()) !==
 
 document.fonts.ready.then(() => moveSegIndicator(false));
 applyStaticText();
+syncDropdowns();
 window.api.setLang(LANG);
 moveSegIndicator(false);
 window.api.getData().then(receive);

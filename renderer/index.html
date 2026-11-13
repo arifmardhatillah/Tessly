@@ -117,8 +117,8 @@
     <form method="dialog" id="frm">
       <h2 data-i18n="settings">Pengaturan</h2>
       <p class="sub" id="devInfo"></p>
-      <label class="lang-row"><span data-i18n="dlg.lang">Bahasa</span>
-        <select id="fLang"><option value="id">Bahasa Indonesia</option><option value="en">English</option></select></label>
+      <div class="lang-row"><span id="langLbl" data-i18n="dlg.lang">Bahasa</span>
+        <select id="fLang" aria-labelledby="langLbl"><option value="id">Bahasa Indonesia</option><option value="en">English</option></select></div>
       <label class="check"><input type="checkbox" name="autostart"> <span data-i18n="dlg.autostart">Jalankan otomatis saat Windows menyala</span></label>
       <div class="ver-row">
         <div class="ver-info">
@@ -137,6 +137,7 @@
   </dialog>
 
   <script src="i18n.js"></script>
+  <script src="dropdown.js"></script>
   <script src="app.js"></script>
 </body>
 </html>
