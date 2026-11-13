@@ -1,6 +1,6 @@
 {
   "name": "tessly",
-  "version": "1.0.8",
+  "version": "1.0.9",
   "description": "Tessly: AI Token Tracker. Know every token you spend.",
   "main": "src/main.js",
   "author": "Arif Mardhatillah",
@@ -24,7 +24,8 @@
       "src/**",
       "renderer/**",
       "build/icon.png",
-      "build/tray.png"
+      "build/tray.png",
+      "build/tray@2x.png"
     ],
     "win": {
       "target": "nsis",

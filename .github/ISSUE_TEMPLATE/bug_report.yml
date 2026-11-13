@@ -1,0 +1,45 @@
+name: Bug report / Laporan bug
+description: Something in Tessly does not work as expected. / Ada yang tidak berjalan semestinya.
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting. English or Bahasa Indonesia are both fine.
+        Terima kasih sudah melapor. Boleh pakai bahasa Inggris atau Indonesia.
+  - type: input
+    id: version
+    attributes:
+      label: Tessly version / Versi Tessly
+      description: Settings > App version. / Pengaturan > Versi aplikasi.
+      placeholder: "1.0.9"
+    validations:
+      required: true
+  - type: dropdown
+    id: windows
+    attributes:
+      label: Windows
+      options:
+        - Windows 11
+        - Windows 10
+    validations:
+      required: true
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened? / Apa yang terjadi?
+      description: What you did, what you expected, and what you saw instead. / Apa yang Anda lakukan, apa yang diharapkan, dan apa yang muncul.
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce / Langkah untuk mengulang
+      placeholder: |
+        1. ...
+        2. ...
+  - type: textarea
+    id: screenshot
+    attributes:
+      label: Screenshot (optional) / Tangkapan layar (opsional)
+      description: Please hide anything private before attaching. / Sembunyikan data pribadi sebelum melampirkan.
