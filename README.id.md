@@ -15,7 +15,7 @@ Tessly adalah aplikasi Windows gratis yang menampilkan berapa banyak token yang 
 
 ## Unduh
 
-1. Buka [rilis terbaru](https://github.com/arifmardhatillah/Tessly/releases/latest) dan unduh `Tessly.Setup.x.y.z.exe`.
+1. Buka [rilis terbaru](https://github.com/arifmardhatillah/Tessly/releases/latest) dan unduh `Tessly-Setup-x.y.z.exe`.
 2. Jalankan. Pemasangan hanya untuk akun Windows Anda, tanpa hak admin.
 
 Syarat: Windows 10 atau 11, dan [Claude Code](https://docs.anthropic.com/en/docs/claude-code) dipakai di komputer yang sama.

@@ -15,7 +15,7 @@ Tessly is a free Windows app that shows how many tokens **Claude Code** uses on 
 
 ## Download
 
-1. Open the [latest release](https://github.com/arifmardhatillah/Tessly/releases/latest) and download `Tessly.Setup.x.y.z.exe`.
+1. Open the [latest release](https://github.com/arifmardhatillah/Tessly/releases/latest) and download `Tessly-Setup-x.y.z.exe`.
 2. Run it. It installs for your user account only, no admin rights needed.
 
 Requirements: Windows 10 or 11, and [Claude Code](https://docs.anthropic.com/en/docs/claude-code) used on the same computer.
