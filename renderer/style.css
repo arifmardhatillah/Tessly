@@ -142,7 +142,9 @@ main { max-width: 1260px; margin: 0 auto; padding: 18px 28px 32px; }
 @keyframes breathe { from { opacity: .45; } }
 
 /* ---------- grafik + daftar ---------- */
-.row2 { display: grid; grid-template-columns: minmax(0, 1.9fr) minmax(0, 1fr); gap: 14px; margin-top: 14px; align-items: start; }
+/* kolom sama dengan baris ringkasan: grafik selebar dua kartu, Models sejajar dengan "Tahun ini" */
+.row2 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; margin-top: 14px; align-items: start; }
+.row2 .chart-sec { grid-column: span 2; }
 .card { background: var(--s1); box-shadow: inset 0 0 0 1px var(--edge); border-radius: 22px; padding: 22px 24px 18px; min-width: 0; animation: rise .6s .18s var(--ease) backwards; }
 .chart-sec { position: relative; }
 /* daftar model ikut terlihat saat menggulir kalender di bawah grafik */
@@ -251,7 +253,10 @@ dialog .btn.primary { background: var(--grad); }
 .check input { width: 15px; height: 15px; padding: 0; accent-color: var(--a2); cursor: pointer; }
 .dlg-actions { display: flex; gap: 8px; margin-top: 10px; }
 .ver-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; font-size: 13px; padding: 2px 0; margin-top: 16px; }
-.ver-row #verMsg { flex: 1; }
+.ver-info { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 3px; }
+.ver-row #verMsg { margin: 0; }
+.ver-row #verMsg:empty { display: none; }
+.ver-row .upd-bar { flex-basis: 100%; margin: 4px 0 0; }
 .ver-row #verMsg.ok { color: var(--good); }
 .ver-row #verMsg.err { color: var(--critical); }
 
@@ -274,6 +279,10 @@ dialog .btn.primary { background: var(--grad); }
 .upd-notes { margin: 12px 0 0; font-size: 12px; color: var(--ink-2); white-space: pre-line; max-height: 96px; overflow: auto; background: var(--s1); border-radius: 12px; padding: 10px 12px; }
 .upd-bar { margin: 14px 0 2px; height: 8px; border-radius: 5px; background: var(--track); overflow: hidden; }
 .upd-bar i { display: block; height: 100%; width: 0; border-radius: 5px; background: var(--grad); transition: width .4s var(--ease); }
+/* lama pemasangan tidak diketahui: bilah bergerak bolak-balik, bukan persen */
+.upd-bar.busy i { width: 35% !important; animation: indet 1.2s var(--ease) infinite alternate; }
+@keyframes indet { from { transform: translateX(-20%); } to { transform: translateX(205%); } }
+@media (prefers-reduced-motion: reduce) { .upd-bar.busy i { animation: none; width: 100% !important; opacity: .6; } }
 .upd-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 14px; }
 .upd-actions .btn { background: var(--s3); }
 .upd-actions .btn.primary { background: var(--grad); }
@@ -283,6 +292,7 @@ dialog .btn.primary { background: var(--grad); }
   .bar { padding: 14px 16px 0; flex-wrap: wrap; }
   main { padding: 14px 16px 28px; }
   .kpis, .row2 { grid-template-columns: 1fr; }
+  .row2 .chart-sec { grid-column: auto; }
   .foot { flex-direction: column; align-items: flex-start; gap: 8px; }
 }
 

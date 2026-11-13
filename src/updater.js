@@ -41,7 +41,7 @@ function notifyDesktop() {
 
 async function check(manual = false) {
   if (!app.isPackaged) {
-    // Khusus pengembangan: TM_FAKE_UPDATE=1.9.0 [TM_FAKE_STATUS=downloading|ready] untuk melihat popup.
+    // Khusus pengembangan: TM_FAKE_UPDATE=1.9.0 [TM_FAKE_STATUS=downloading|ready|installing] untuk melihat popup.
     if (process.env.TM_FAKE_UPDATE) {
       set({
         status: process.env.TM_FAKE_STATUS || 'available', version: process.env.TM_FAKE_UPDATE, percent: 62, error: null,
@@ -52,7 +52,7 @@ async function check(manual = false) {
     }
     return getState();
   }
-  if (state.status === 'downloading' || state.status === 'ready') return getState();
+  if (['downloading', 'ready', 'installing'].includes(state.status)) return getState();
   lastCheck = Date.now();
   // pengecekan otomatis tidak mengubah status, supaya popup yang sedang tampil tidak berkedip
   if (manual) set({ status: 'checking', error: null });
@@ -77,9 +77,10 @@ async function download() {
 
 function install() {
   if (state.status !== 'ready') return;
+  set({ status: 'installing' }); // pesan "Memasang..." sempat terbaca sebelum jendela tertutup
   hooks.beforeQuit();
-  // isSilent=true: tanpa jendela installer; isForceRunAfter=true: buka lagi setelah terpasang
-  setImmediate(() => autoUpdater.quitAndInstall(true, true));
+  // isSilent=false: jendela installer menampilkan progres pemasangan; isForceRunAfter=true: buka lagi setelah terpasang
+  setTimeout(() => autoUpdater.quitAndInstall(false, true), 1500);
 }
 
 function init(h) {

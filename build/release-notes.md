@@ -1,3 +1,7 @@
-Update baru lebih cepat ketahuan: Tessly mengecek begitu jendelanya dibuka atau diklik, dan tiap 10 menit (sebelumnya tiap 4 jam).
-New updates show up faster: Tessly checks as soon as you open or click the window, and every 10 minutes.
-Sudah termasuk 1.0.4 dan 1.0.5: bahasa Inggris, angka langsung naik, riwayat disimpan di komputer ini.
+Update bisa diunduh dan dipasang langsung dari Pengaturan, statusnya tampil di bawah nomor versi.
+Saat memasang, Tessly memberi tahu dulu, lalu jendela installer menampilkan progresnya.
+Kartu Model kini sejajar dengan kartu Tahun ini.
+
+Updates can be downloaded and installed right from Settings, with the status shown under the version number.
+While installing, Tessly lets you know first and the installer window shows its progress.
+The Models card now lines up with the This year card.

@@ -517,7 +517,8 @@ async function openSettings() {
   $('devInfo').textContent = t('dlg.info', { host: s.hostname, user: s.user, dirs: s.logFolders.join(', ') });
   $('fLang').value = LANG;
   $('verNow').textContent = s.version;
-  $('verMsg').textContent = '';
+  // update yang sudah ketahuan langsung tampil di sini; hasil cek lama (sudah terbaru, gagal) tidak
+  renderVerMsg(updPending(upd) || upd.status === 'installing' ? upd : { status: 'idle', current: s.version });
   $('dlg').showModal();
 }
 
@@ -605,8 +606,8 @@ function renderUpd(u) {
   upd = u;
   if (u.current) $('appVer').textContent = `Tessly ${u.current}`;
   const box = $('upd');
-  const show = ['available', 'downloading', 'ready'].includes(u.status) || (u.status === 'error' && u.version);
-  if (!show || dismissedKey === updKey(u)) { hideUpd(); return; }
+  const show = updPending(u) || u.status === 'installing';
+  if (!show || (dismissedKey === updKey(u) && u.status !== 'installing')) { hideUpd(); return; }
 
   const go = $('updGo'), later = $('updLater'), bar = $('updBar'), notes = $('updNotes');
   box.dataset.status = u.status;
@@ -614,7 +615,9 @@ function renderUpd(u) {
   go.hidden = false;
   go.disabled = false;
   bar.hidden = true;
+  bar.classList.remove('busy');
   notes.hidden = true;
+  $('updClose').hidden = false;
 
   if (u.status === 'available') {
     $('updTitle').textContent = t('upd.avail', { v: u.version });
@@ -634,6 +637,15 @@ function renderUpd(u) {
     $('updText').textContent = t('upd.readyText');
     go.textContent = t('upd.install');
     later.textContent = t('upd.onQuit');
+  } else if (u.status === 'installing') {
+    // jendela akan tertutup sebentar lagi; beri tahu bahwa ini pemasangan, bukan aplikasi mati
+    $('updTitle').textContent = t('upd.installing', { v: u.version });
+    $('updText').textContent = t('upd.installingText');
+    bar.hidden = false;
+    bar.classList.add('busy');
+    go.hidden = true;
+    later.hidden = true;
+    $('updClose').hidden = true;
   } else {
     $('updTitle').textContent = t('upd.fail');
     $('updText').textContent = u.error || t('upd.failText');
@@ -662,15 +674,33 @@ window.api.update.onState((u) => {
 });
 window.api.update.get().then(renderUpd);
 
+// Ada versi baru yang bisa diunduh, sedang diunduh, atau siap dipasang.
+function updPending(u) {
+  return ['available', 'downloading', 'ready'].includes(u.status) || (u.status === 'error' && Boolean(u.version));
+}
+
+// Baris versi di Pengaturan: pesan di bawah nomor versi, tombol berubah sesuai keadaan update.
 function renderVerMsg(u) {
   const m = $('verMsg');
-  $('verNow').textContent = u.current || '';
+  if (u.current) $('verNow').textContent = u.current;
+  const b = $('btnCheckUpd'), bar = $('verBar');
+  const pending = updPending(u);
+  const busy = u.status === 'downloading' || u.status === 'installing';
+  b.hidden = busy;
+  b.disabled = u.status === 'checking';
+  b.classList.toggle('primary', pending);
+  b.textContent = u.status === 'ready' ? t('upd.install') : u.status === 'error' && u.version ? t('upd.retry') : pending ? t('upd.go') : t('dlg.check');
+  bar.hidden = !busy;
+  bar.classList.toggle('busy', u.status === 'installing');
+  if (u.status === 'downloading') bar.firstElementChild.style.width = `${u.percent}%`;
+  if (u.status === 'idle') { m.textContent = ''; return; }
   const map = {
     checking: [t('ver.checking'), ''],
     latest: [t('ver.latest'), 'ok'],
     available: [t('upd.avail', { v: u.version }), 'ok'],
     downloading: [t('ver.dl', { p: u.percent }), ''],
     ready: [t('upd.ready', { v: u.version }), 'ok'],
+    installing: [t('upd.installing', { v: u.version }), ''],
     dev: [t('ver.dev'), ''],
     error: [u.error ? t('ver.err', { e: u.error }) : t('ver.errPlain'), 'err'],
   };
@@ -683,15 +713,23 @@ function renderVerMsg(u) {
 $('btnCheckUpd').addEventListener('click', async () => {
   const b = $('btnCheckUpd');
   b.disabled = true;
-  renderVerMsg({ status: 'checking' });
-  try {
-    const u = await window.api.update.check();
-    dismissedKey = null;
-    renderVerMsg(u);
-    renderUpd(u);
-  } finally {
-    b.disabled = false;
+  // versi baru sudah ketahuan: tombol ini langsung mengunduh atau memasang, tanpa menutup Pengaturan
+  if (upd.status === 'ready') { await window.api.update.install(); return; }
+  if (updPending(upd)) {
+    dismissedKey = updKey({ status: 'downloading', version: upd.version }); // popup tidak ikut muncul di belakang dialog
+    await window.api.update.download();
+    return;
   }
+  renderVerMsg({ status: 'checking' });
+  let u;
+  try {
+    u = await window.api.update.check();
+  } catch {
+    u = { ...upd, status: 'error', error: null, version: null };
+  }
+  dismissedKey = null;
+  renderVerMsg(u);
+  renderUpd(u);
 });
 
 let resizeT;

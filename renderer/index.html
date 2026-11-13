@@ -121,9 +121,12 @@
         <select id="fLang"><option value="id">Bahasa Indonesia</option><option value="en">English</option></select></label>
       <label class="check"><input type="checkbox" name="autostart"> <span data-i18n="dlg.autostart">Jalankan otomatis saat Windows menyala</span></label>
       <div class="ver-row">
-        <span><span data-i18n="dlg.version">Versi aplikasi</span> <b id="verNow"></b></span>
-        <span id="verMsg" class="sub" role="status"></span>
-        <button type="button" class="btn" id="btnCheckUpd" data-i18n="dlg.check">Cek update</button>
+        <div class="ver-info">
+          <span><span data-i18n="dlg.version">Versi aplikasi</span> <b id="verNow"></b></span>
+          <span id="verMsg" class="sub" role="status"></span>
+        </div>
+        <button type="button" class="btn" id="btnCheckUpd">Cek update</button>
+        <div class="upd-bar" id="verBar" hidden><i></i></div>
       </div>
       <div class="dlg-actions">
         <span class="grow"></span>

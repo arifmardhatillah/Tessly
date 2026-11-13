@@ -24,12 +24,13 @@ Aplikasi berjalan otomatis setiap Windows menyala (bisa dimatikan di Pengaturan)
 
 ## Update aplikasi
 
-Tessly mengecek GitHub Releases (`arifmardhatillah/Tessly`) saat dibuka dan setiap 4 jam. Kalau ada versi baru:
+Tessly mengecek GitHub Releases (`arifmardhatillah/Tessly`) saat aplikasi menyala, saat jendelanya dibuka atau diklik, dan setiap 10 menit. Kalau ada versi baru:
 
 - Popup muncul di pojok kanan bawah: **Unduh dan pasang**, lalu **Pasang sekarang**. Aplikasi tertutup sebentar dan terbuka lagi dengan versi baru.
 - Kalau jendela sedang tersembunyi di tray, muncul notifikasi Windows, dan menu tray mendapat item "Unduh update" atau "Pasang update".
 - Pilih **Nanti** kalau tidak ingin sekarang. Update yang sudah terunduh otomatis dipasang saat aplikasi ditutup.
-- Pengecekan manual: buka **Pengaturan**, lalu klik **Cek update**.
+- Pengecekan manual: buka **Pengaturan**, lalu klik **Cek update**. Kalau ada versi baru, unduh dan pasang bisa langsung dari situ.
+- Saat memasang, jendela installer menampilkan progresnya, lalu Tessly terbuka lagi sendiri.
 
 ### Menerbitkan versi baru
 
