@@ -213,8 +213,21 @@ function createWindow(show) {
         win.setContentSize(1180, 1250);
         await new Promise((r) => setTimeout(r, 800));
       }
-      const img = await win.webContents.capturePage();
-      fs.writeFileSync(process.env.TM_SHOT, img.toPNG());
+      // TM_FRAMES=n: rekam n bingkai berurutan (file-000.png, ...) tiap TM_FRAME_MS, untuk membuat GIF demo
+      const frames = Number(process.env.TM_FRAMES) || 0;
+      if (frames > 0) {
+        const gap = Number(process.env.TM_FRAME_MS) || 80;
+        const base = process.env.TM_SHOT.replace(/\.png$/i, '');
+        for (let i = 0; i < frames; i++) {
+          const t = Date.now();
+          const img = await win.webContents.capturePage();
+          fs.writeFileSync(`${base}-${String(i).padStart(3, '0')}.png`, img.toPNG());
+          await new Promise((r) => setTimeout(r, Math.max(0, gap - (Date.now() - t))));
+        }
+      } else {
+        const img = await win.webContents.capturePage();
+        fs.writeFileSync(process.env.TM_SHOT, img.toPNG());
+      }
       quitting = true;
       app.quit();
     }, Number(process.env.TM_DELAY) || 4000));

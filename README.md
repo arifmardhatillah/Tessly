@@ -1,17 +1,29 @@
-# Tessly: AI Token Tracker
+<h1 align="center">
+  <img src="docs/banner.gif" alt="Tessly: Know every token you spend. The Today total rises each time Claude Code finishes a reply." width="100%">
+</h1>
 
-*Know every token you spend.*
+<p align="center">
+  <a href="https://github.com/arifmardhatillah/Tessly/releases/latest"><img alt="Latest release" src="https://img.shields.io/github/v/release/arifmardhatillah/Tessly?color=ff6b5c&label=release"></a>
+  <a href="https://github.com/arifmardhatillah/Tessly/releases"><img alt="Downloads" src="https://img.shields.io/github/downloads/arifmardhatillah/Tessly/total?color=e8743b"></a>
+  <img alt="Windows 10 and 11" src="https://img.shields.io/badge/Windows-10%20%7C%2011-0078d4">
+  <a href="LICENSE"><img alt="MIT license" src="https://img.shields.io/github/license/arifmardhatillah/Tessly?color=3fb950"></a>
+</p>
 
-**English** · [Bahasa Indonesia](README.id.md)
+<p align="center">
+  <a href="https://github.com/arifmardhatillah/Tessly/releases/latest"><img alt="Download Tessly" src="https://img.shields.io/badge/Download-Tessly-ff6b5c?style=for-the-badge"></a>
+</p>
+
+<p align="center"><b>English</b> · <a href="README.id.md">Bahasa Indonesia</a></p>
 
 Tessly is a free Windows app that shows how many tokens **Claude Code** uses on your computer, by day, month and year. It sits in the system tray, and the numbers update the moment Claude Code finishes a reply.
 
-<picture>
-  <source media="(prefers-color-scheme: dark)" srcset="docs/screenshot-dark.png">
-  <img alt="Tessly dashboard: today, this month and this year totals, a daily chart with a 7-day average line, a usage calendar and a per-model list" src="docs/screenshot-light.png">
-</picture>
+## Why Tessly
 
-<sub>Screenshot with sample data.</sub>
+- **Live.** The total rises as soon as Claude Code finishes a reply, no refresh needed.
+- **Private.** Everything stays on your computer. Only token counts are kept, never your conversations.
+- **Free and open source.** MIT licensed, built from the code in this repository.
+
+<sub>The banner and screenshots use sample data.</sub>
 
 ## Download
 
@@ -25,6 +37,11 @@ Requirements: Windows 10 or 11, and [Claude Code](https://docs.anthropic.com/en/
 The installer is not code-signed yet, so Windows SmartScreen may show a blue warning the first time. Click **More info**, then **Run anyway**. The full source code is in this repository, and every installer is built from it.
 
 ## What it shows
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/screenshot-dark.png">
+  <img alt="Tessly dashboard: today, this month and this year totals, a daily chart with a 7-day average line, a usage calendar and a per-model list" src="docs/screenshot-light.png">
+</picture>
 
 - Tokens today, this month and this year, split into input, output, cache write and cache read.
 - A daily, monthly or yearly chart with a moving-average trend line.
@@ -75,6 +92,7 @@ Development hooks:
 | `TM_SHOT=out.png` | Save a screenshot of the window and quit. |
 | `TM_JS="..."` | Run a script in the page before the screenshot, for example to click a tab. |
 | `TM_FAKE_UPDATE=9.9.9` | Show the update popup. `TM_FAKE_STATUS` (`downloading`, `ready`, `installing`) picks the stage. |
+| `TM_FRAMES=120` | With `TM_SHOT`, save that many frames in a row (`out-000.png`, ...) every `TM_FRAME_MS` ms (default 80), for demo GIFs. |
 
 Project layout:
 

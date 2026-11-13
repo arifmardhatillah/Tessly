@@ -1,17 +1,29 @@
-# Tessly: AI Token Tracker
+<h1 align="center">
+  <img src="docs/banner.gif" alt="Tessly: Know every token you spend. Total hari ini naik setiap kali Claude Code selesai membalas." width="100%">
+</h1>
 
-*Know every token you spend.*
+<p align="center">
+  <a href="https://github.com/arifmardhatillah/Tessly/releases/latest"><img alt="Rilis terbaru" src="https://img.shields.io/github/v/release/arifmardhatillah/Tessly?color=ff6b5c&label=release"></a>
+  <a href="https://github.com/arifmardhatillah/Tessly/releases"><img alt="Jumlah unduhan" src="https://img.shields.io/github/downloads/arifmardhatillah/Tessly/total?color=e8743b"></a>
+  <img alt="Windows 10 dan 11" src="https://img.shields.io/badge/Windows-10%20%7C%2011-0078d4">
+  <a href="LICENSE"><img alt="Lisensi MIT" src="https://img.shields.io/github/license/arifmardhatillah/Tessly?color=3fb950"></a>
+</p>
 
-[English](README.md) · **Bahasa Indonesia**
+<p align="center">
+  <a href="https://github.com/arifmardhatillah/Tessly/releases/latest"><img alt="Unduh Tessly" src="https://img.shields.io/badge/Unduh-Tessly-ff6b5c?style=for-the-badge"></a>
+</p>
+
+<p align="center"><a href="README.md">English</a> · <b>Bahasa Indonesia</b></p>
 
 Tessly adalah aplikasi Windows gratis yang menampilkan berapa banyak token yang dipakai **Claude Code** di komputer Anda, per hari, per bulan, dan per tahun. Aplikasi berjalan di system tray, dan angkanya naik begitu Claude Code selesai membalas.
 
-<picture>
-  <source media="(prefers-color-scheme: dark)" srcset="docs/screenshot-dark.png">
-  <img alt="Dashboard Tessly: total hari ini, bulan ini, dan tahun ini, grafik harian dengan garis rata-rata 7 hari, kalender pemakaian, dan daftar per model" src="docs/screenshot-light.png">
-</picture>
+## Kenapa Tessly
 
-<sub>Tangkapan layar dengan data contoh.</sub>
+- **Langsung.** Total naik begitu Claude Code selesai membalas, tanpa perlu muat ulang.
+- **Pribadi.** Semua data tetap di komputer Anda. Yang disimpan hanya jumlah token, bukan isi percakapan.
+- **Gratis dan open source.** Berlisensi MIT, dibuat dari kode di repo ini.
+
+<sub>Spanduk dan tangkapan layar memakai data contoh.</sub>
 
 ## Unduh
 
@@ -25,6 +37,11 @@ Syarat: Windows 10 atau 11, dan [Claude Code](https://docs.anthropic.com/en/docs
 Installer belum ditandatangani (code signing), jadi Windows SmartScreen bisa menampilkan peringatan biru saat pertama kali dijalankan. Klik **More info**, lalu **Run anyway**. Seluruh kode sumber ada di repo ini, dan setiap installer dibuat dari kode tersebut.
 
 ## Yang ditampilkan
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/screenshot-dark.png">
+  <img alt="Dashboard Tessly: total hari ini, bulan ini, dan tahun ini, grafik harian dengan garis rata-rata 7 hari, kalender pemakaian, dan daftar per model" src="docs/screenshot-light.png">
+</picture>
 
 - Token hari ini, bulan ini, dan tahun ini, dirinci menjadi input, output, cache tulis, dan cache baca.
 - Grafik harian, bulanan, atau tahunan dengan garis tren rata-rata.
@@ -75,6 +92,7 @@ Variabel untuk pengembangan:
 | `TM_SHOT=hasil.png` | Menyimpan tangkapan layar jendela lalu keluar. |
 | `TM_JS="..."` | Menjalankan skrip di halaman sebelum dipotret, misalnya untuk mengklik tab. |
 | `TM_FAKE_UPDATE=9.9.9` | Menampilkan popup update. `TM_FAKE_STATUS` (`downloading`, `ready`, `installing`) memilih tahapnya. |
+| `TM_FRAMES=120` | Bersama `TM_SHOT`, menyimpan sejumlah bingkai berurutan (`hasil-000.png`, ...) tiap `TM_FRAME_MS` ms (bawaan 80), untuk GIF demo. |
 
 Struktur:
 
