@@ -7,6 +7,7 @@
   <a href="https://github.com/arifmardhatillah/Tessly/releases"><img alt="Downloads" src="https://img.shields.io/github/downloads/arifmardhatillah/Tessly/total?color=e8743b"></a>
   <img alt="Windows 10 and 11" src="https://img.shields.io/badge/Windows-10%20%7C%2011-0078d4">
   <a href="LICENSE"><img alt="MIT license" src="https://img.shields.io/github/license/arifmardhatillah/Tessly?color=3fb950"></a>
+  <a href="https://marketplace.visualstudio.com/items?itemName=arifmardhatillah.tessly"><img alt="VS Code extension" src="https://img.shields.io/badge/VS%20Code-Marketplace-007acc"></a>
 </p>
 
 <p align="center">
@@ -48,6 +49,8 @@ Claude Code reports usage one session at a time. Tessly adds every session and e
 3. Use Claude Code as usual. Click the Tessly icon in the system tray to open the dashboard.
 
 **Requirements:** Windows 10 or 11, with [Claude Code](https://docs.anthropic.com/en/docs/claude-code) used on the same computer.
+
+**Using VS Code?** Install [Tessly from the VS Code Marketplace](https://marketplace.visualstudio.com/items?itemName=arifmardhatillah.tessly) instead. Today's total sits in the status bar, and the same dashboard opens in an editor tab.
 
 > [!NOTE]
 > The installer is not code-signed yet, so Windows SmartScreen may show "Windows protected your PC" the first time. Click **More info**, then **Run anyway**. Every installer is built from the source code in this repository.

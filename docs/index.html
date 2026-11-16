@@ -135,9 +135,9 @@ footer p{margin:0;max-width:70ch}
     <p class="lead rv" data-t="lead">Tessly totals the tokens Claude Code uses on your computer, today, this month and this year, right from the Windows tray.</p>
     <div class="cta rv">
       <a class="btn pri dl" href="https://github.com/arifmardhatillah/Tessly/releases/latest"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12M6 10l6 6 6-6M4 21h16"/></svg><span data-t="dl">Download for Windows</span></a>
-      <a class="btn sec" href="https://github.com/arifmardhatillah/Tessly" data-t="src">View source</a>
+      <a class="btn sec" href="https://marketplace.visualstudio.com/items?itemName=arifmardhatillah.tessly"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M8 7l-5 5 5 5M16 7l5 5-5 5"/></svg><span data-t="vsc">Get it for VS Code</span></a>
     </div>
-    <p class="meta rv"><b class="ver">Free</b> · <span data-t="meta">Open source (MIT) · Windows 10 and 11</span></p>
+    <p class="meta rv"><b class="ver">Free</b> · <span data-t="meta">Open source (MIT) · Windows 10 and 11 · VS Code</span></p>
   </div>
   <div class="shot rv"><img src="tour.gif" width="900" height="843" alt="Tessly dashboard: the Today total rises with a new reply, the chart switches between daily, monthly and yearly, then the app changes to light mode and back."></div>
 </div></header>
@@ -191,8 +191,8 @@ footer p{margin:0;max-width:70ch}
 
 <section class="end"><div class="wrap">
   <h2 class="rv" data-t="h5">Start counting today.</h2>
-  <p class="sub rv" data-t="s5">Free for Windows 10 and 11.</p>
-  <div class="cta rv"><a class="btn pri dl" href="https://github.com/arifmardhatillah/Tessly/releases/latest"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12M6 10l6 6 6-6M4 21h16"/></svg><span data-t="dl">Download for Windows</span></a></div>
+  <p class="sub rv" data-t="s5">Free for Windows 10 and 11, and as a VS Code extension.</p>
+  <div class="cta rv"><a class="btn pri dl" href="https://github.com/arifmardhatillah/Tessly/releases/latest"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12M6 10l6 6 6-6M4 21h16"/></svg><span data-t="dl">Download for Windows</span></a><a class="btn sec" href="https://marketplace.visualstudio.com/items?itemName=arifmardhatillah.tessly"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M8 7l-5 5 5 5M16 7l5 5-5 5"/></svg><span data-t="vsc">Get it for VS Code</span></a></div>
 </div></section>
 
 <footer><div class="wrap">
@@ -204,7 +204,7 @@ footer p{margin:0;max-width:70ch}
 document.body.classList.remove('no-js');
 const ID={nFeat:'Fitur',nPriv:'Privasi',
 lead:'Tessly menjumlahkan token yang dipakai Claude Code di komputer Anda, hari ini, bulan ini, dan tahun ini, langsung dari system tray Windows.',
-dl:'Unduh untuk Windows',src:'Lihat kode sumber',meta:'Open source (MIT) · Windows 10 dan 11',
+dl:'Unduh untuk Windows',vsc:'Pasang di VS Code',meta:'Open source (MIT) · Windows 10 dan 11 · VS Code',
 k1:'Yang Anda dapat',h1:'Semua pemakaian Claude Code, dijumlahkan.',s1:'Claude Code melaporkan pemakaian per sesi. Tessly menjumlahkan semua sesi dan proyek, menyimpan riwayatnya, dan menampilkan pertumbuhannya.',
 f1:'Total langsung',f1p:'Hari ini, bulan ini, dan tahun ini, dirinci menjadi input, output, cache tulis, dan cache baca.',
 f2:'Grafik dan tren',f2p:'Batang harian, bulanan, atau tahunan dengan garis rata-rata, sehingga minggu yang sibuk langsung terlihat.',
@@ -224,7 +224,7 @@ q2:'Apakah pemakaian di claude.ai ikut dihitung?',a2:'Tidak. Percakapan di claud
 q3:'Bagaimana kalau Claude Code menghapus log lama?',a3:'Secara bawaan Claude Code menghapus log yang lebih tua dari 30 hari. Tessly menyimpan totalnya sendiri, jadi riwayat Anda tetap ada.',
 q4:'Bagaimana cara update-nya?',a4:'Tessly mengecek versi baru saat menyala, saat jendelanya dibuka, dan setiap 10 menit. Popup menawarkan pemasangan, dengan jendela progres selama memasang.',
 q5:'Apakah benar-benar gratis?',a5:'Ya. Tessly open source dengan lisensi MIT, tanpa iklan, akun, atau versi berbayar.',
-h5:'Mulai hitung hari ini.',s5:'Gratis untuk Windows 10 dan 11.',bug:'Laporkan bug',
+h5:'Mulai hitung hari ini.',s5:'Gratis untuk Windows 10 dan 11, juga sebagai extension VS Code.',bug:'Laporkan bug',
 disc:'Tessly adalah proyek independen, tidak berafiliasi dengan, tidak didukung, dan tidak disponsori oleh Anthropic. "Claude" dan "Claude Code" adalah merek dagang Anthropic.'};
 const EN={};document.querySelectorAll('[data-t]').forEach(e=>EN[e.dataset.t]=e.innerHTML);
 const lb=document.getElementById('lang');

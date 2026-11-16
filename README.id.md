@@ -7,6 +7,7 @@
   <a href="https://github.com/arifmardhatillah/Tessly/releases"><img alt="Jumlah unduhan" src="https://img.shields.io/github/downloads/arifmardhatillah/Tessly/total?color=e8743b"></a>
   <img alt="Windows 10 dan 11" src="https://img.shields.io/badge/Windows-10%20%7C%2011-0078d4">
   <a href="LICENSE"><img alt="Lisensi MIT" src="https://img.shields.io/github/license/arifmardhatillah/Tessly?color=3fb950"></a>
+  <a href="https://marketplace.visualstudio.com/items?itemName=arifmardhatillah.tessly"><img alt="Extension VS Code" src="https://img.shields.io/badge/VS%20Code-Marketplace-007acc"></a>
 </p>
 
 <p align="center">
@@ -48,6 +49,8 @@ Claude Code melaporkan pemakaian per sesi. Tessly menjumlahkan semua sesi dan se
 3. Pakai Claude Code seperti biasa. Klik ikon Tessly di system tray untuk membuka dashboard.
 
 **Syarat:** Windows 10 atau 11, dan [Claude Code](https://docs.anthropic.com/en/docs/claude-code) dipakai di komputer yang sama.
+
+**Pakai VS Code?** Pasang [Tessly dari VS Code Marketplace](https://marketplace.visualstudio.com/items?itemName=arifmardhatillah.tessly). Total hari ini tampil di status bar, dan dashboard yang sama terbuka di tab editor.
 
 > [!NOTE]
 > Installer belum ditandatangani (code signing), jadi Windows SmartScreen bisa menampilkan "Windows protected your PC" saat pertama kali dijalankan. Klik **More info**, lalu **Run anyway**. Setiap installer dibuat dari kode sumber di repo ini.
