@@ -1,3 +1,3 @@
-Ikon baru: tumpukan token dengan warna khas Tessly, di Start Menu, taskbar, dan tray. Ikon tray lebih tajam di layar beresolusi tinggi.
+Perbaikan: angka besar di dashboard sekarang selalu berhenti di nilai yang benar, juga saat jendela sedang tidak terlihat ketika ada balasan baru.
 
-New icon: a stack of tokens in Tessly's own colors, in the Start Menu, taskbar and tray. The tray icon is sharper on high-resolution screens.
+Fix: the big numbers on the dashboard now always settle on the correct value, even when the window was out of view while a new reply came in.

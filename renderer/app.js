@@ -62,6 +62,7 @@ function tween(el, to, fmt, ms = 900) {
   el._v = to;
   el.title = `${fmtFull.format(to)}`;
   cancelAnimationFrame(el._raf);
+  clearTimeout(el._end);
   if (reduceMotion || from === to) { paint(el, fmt(to)); return; }
   const t0 = performance.now();
   const step = (now) => {
@@ -70,6 +71,8 @@ function tween(el, to, fmt, ms = 900) {
     if (k < 1) el._raf = requestAnimationFrame(step);
   };
   el._raf = requestAnimationFrame(step);
+  // Jendela yang tidak sedang digambar bisa menghentikan animasi di tengah jalan; nilai akhir tetap dipasang.
+  el._end = setTimeout(() => { cancelAnimationFrame(el._raf); paint(el, fmt(to)); }, ms + 100);
 }
 
 // Angka besar di kartu: satuan (rb, jt, M) ditulis lebih kecil dari angkanya.
